@@ -9,10 +9,10 @@ function App() {
   const [activePage, setActivePage] = useState("Split");
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-md bg-neutral-100 text-emerald-950">
+    <div className="mx-auto min-h-screen w-full max-w-md bg-neutral-100 text-black">
       <main className="h-screen overflow-y-auto pb-28 pt-6">
         <header className="flex items-center justify-between px-6">
-          <h1 className="flex text-xl font-extrabold tracking-tight text-emerald-950">
+          <h1 className="flex text-xl font-extrabold tracking-tight text-black">
             <p>
               <User
                 size={30}

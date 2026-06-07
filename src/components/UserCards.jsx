@@ -10,11 +10,11 @@ const UserCards = ({ title, subtitle, colour, amount }) => {
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-emerald-900"> {title}</p>
-            <p className="mt-1 text-xs text-neutral-700">{subtitle}</p>
+            <p className="text-sm  text-black"> {title}</p>
+            <p className="mt-1 text-xs text-neutral-600">{subtitle}</p>
           </div>
         </div>
-        <p className={`text-sm font-semibold ${colour}`}>{amount}</p>
+        <p className={`text-sm  ${colour}`}>{amount}</p>
       </div>
     </div>
   );

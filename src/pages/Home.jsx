@@ -24,7 +24,7 @@ const Home = () => {
         <div className="mt-6">
           <p className="text-sm text-neutral-700">You owe</p>
           <div className="mt-1 flex items-end gap-2">
-            <h2 className="text-5xl font-semibold leading-none tracking-tight text-emerald-900">
+            <h2 className="text-5xl font-semibold leading-none tracking-tight text-black">
               {netOwed}
             </h2>
             <p className="pb-1 text-sm text-neutral-500">MVR net</p>
@@ -37,7 +37,7 @@ const Home = () => {
               <ArrowDownLeft size={15} />
               <p className="text-xs">Owed to you</p>
             </div>
-            <p className="mt-2 text-sm font-semibold text-emerald-900">
+            <p className="mt-2 text-sm font-semibold text-black">
               {owedToYou}
             </p>
           </div>
@@ -47,7 +47,7 @@ const Home = () => {
               <ArrowUpRight size={15} />
               <p className="text-xs">You owe</p>
             </div>
-            <p className="mt-2 text-sm font-semibold text-emerald-900">
+            <p className="mt-2 text-sm font-semibold text-black">
               {youOwe}
             </p>
           </div>
@@ -65,9 +65,9 @@ const Home = () => {
         </div>
       </div>
       <div className="mt-9">
-        <div className="flex items-center justify-between px-2 text-emerald-900">
+        <div className="flex items-center justify-between px-2 text-black">
           <h2 className="text-xl font-semibold">Active Debts </h2>
-          <button className="text-sm font-semibold text-emerald-900 hover:cursor-pointer">
+          <button className="text-sm font-semibold text-black hover:cursor-pointer">
             View all
           </button>
         </div>
@@ -78,38 +78,38 @@ const Home = () => {
           title={"YOU OWE"}
           amount={youOwe}
           subtitle={"Across 3 people"}
-          colour={"text-emerald-900"}
+          colour={"text-black"}
         />
         <DebtCards
           title={"OWED TO YOU"}
           amount={owedToYou}
           subtitle={"Across 2 people"}
-          colour={"text-emerald-900"}
+          colour={"text-black"}
         />
       </div>
 
       <UserCards
         title={"Yazak Hafiz"}
         amount={"2,510.00 MVR"}
-        colour={"text-emerald-900"}
+        colour={"text-black"}
         subtitle={"YOU OWE"}
       />
       <UserCards
         title={"Hafiz Yoosuf"}
         amount={"110.00 MVR"}
-        colour={"text-emerald-900"}
+        colour={"text-black"}
         subtitle={"YOU OWE"}
       />
       <UserCards
         title={"Dhaisam Shadda"}
         amount={"150.00 MVR"}
-        colour={"text-emerald-900"}
+        colour={"text-black"}
         subtitle={"OWES YOU"}
       />
       <UserCards
         title={"Zareef idk"}
         amount={"375.00 MVR"}
-        colour={"text-emerald-900"}
+        colour={"text-black"}
         subtitle={"OWES YOU"}
       />
     </section>

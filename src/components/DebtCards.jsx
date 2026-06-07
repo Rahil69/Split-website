@@ -11,7 +11,7 @@ const DebtCards = ({ title, amount, subtitle, colour }) => {
         <p className="text-xs tracking-wide text-black">{title}</p>
       </div>
       <p className={`mt-3 text-lg font-semibold ${colour}`}>{amount}</p>
-      <p className="mt-1 text-xs text-neutral-500">{subtitle}</p>
+      <p className="mt-1 text-xs text-neutral-600">{subtitle}</p>
     </div>
   );
 };

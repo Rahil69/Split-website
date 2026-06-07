@@ -84,7 +84,7 @@ export const Split = () => {
               placeholder="Restaurant Name "
               value={restaurantName}
               onChange={(e) => setRestaurantName(e.target.value)}
-              className="text-4xl outline-none bg-transparent font-semibold tracking-tight text-emerald-900 placeholder:text-neutral-400 placeholder:text-xl"
+              className="text-4xl outline-none bg-transparent font-semibold tracking-tight text-black placeholder:text-neutral-400 placeholder:text-xl"
             />
           </p>
         </div>
@@ -97,8 +97,8 @@ export const Split = () => {
             onClick={() => handlePeopleCount(peopleCount === 2 ? null : 2)}
             className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
               peopleCount === 2
-                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-emerald-900"
-                : "border border-neutral-300/70 bg-white/70 text-emerald-900/80"
+                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-black"
+                : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
             <p className="text-xl font-semibold">2</p>
@@ -108,8 +108,8 @@ export const Split = () => {
             onClick={() => handlePeopleCount(peopleCount === 3 ? null : 3)}
             className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
               peopleCount === 3
-                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-emerald-900"
-                : "border border-neutral-300/70 bg-white/70 text-emerald-900/80"
+                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-black"
+                : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
             <p className="text-xl font-semibold">3</p>
@@ -119,8 +119,8 @@ export const Split = () => {
             onClick={() => handlePeopleCount(peopleCount === 4 ? null : 4)}
             className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
               peopleCount === 4
-                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-emerald-900"
-                : "border border-neutral-300/70 bg-white/70 text-emerald-900/80"
+                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-black"
+                : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
             <p className="text-xl font-semibold">4</p>
@@ -128,7 +128,7 @@ export const Split = () => {
           </button>
 
           <button className="rounded-2xl border border-neutral-300/70 bg-white/70 p-4 text-center backdrop-blur hover:cursor-pointer">
-            <p className="text-xl font-semibold text-emerald-900">5+</p>
+            <p className="text-xl font-semibold text-black">5+</p>
             <p className="mt-1 text-xs text-neutral-700">Custom</p>
           </button>
         </div>
@@ -138,7 +138,7 @@ export const Split = () => {
 
       {peopleCount && (
         <div className="mt-6 rounded-3xl border border-white/80 bg-white/70 px-6 py-6 backdrop-blur-xl">
-          <h2 className="text-xl font-semibold text-emerald-900">
+          <h2 className="text-xl font-semibold text-black">
             Participants
           </h2>
           <p className="mt-1 text-sm text-neutral-700">
@@ -152,18 +152,18 @@ export const Split = () => {
                     <div className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-emerald-900">
                       <User size={20} className="fill-emerald-900" />
                     </div>
-                    <p className="font-semibold text-neutral-700">
+                    <p className="font-semibold text-black">
                       {participant.name}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold text-emerald-900">
+                  <p className="text-sm font-semibold text-black">
                     {formatMoney(perPersonAmount)}
                   </p>
                 </div>
 
                 <button
                   onClick={() => toggleBorrowed(index)}
-                  className="flex bg-emerald-100/40 hover:cursor-pointer mt-3 rounded-full px-3 py-1 !text-xs font-semibold text-emerald-900"
+                  className="flex bg-emerald-100/40 hover:cursor-pointer mt-3 rounded-full px-3 py-1 !text-xs font-semibold text-black"
                 >
                   BORROWED?
                   <ChevronDown size={15} className="ml-1" />
@@ -194,7 +194,7 @@ export const Split = () => {
               BALANCE OVERVIEW
             </p>
 
-            <p className="mt-2 text-lg font-semibold text-emerald-900">
+            <p className="mt-2 text-lg font-semibold text-black">
               You are owed 420 MVR
             </p>
           </div>

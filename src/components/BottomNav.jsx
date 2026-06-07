@@ -9,7 +9,7 @@ function BottomNav(props) {
           className={`flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-extrabold transition ${
             props.activePage === "Home"
               ? "bg-emerald-900 text-white "
-              : "text-emerald-700/70"
+              : "text-black/60"
           }`}
         >
           <Home size={20} />
@@ -20,7 +20,7 @@ function BottomNav(props) {
           className={`flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-extrabold transition ${
             props.activePage === "Split"
               ? "bg-emerald-900 text-white shadow-2xs shadow-emerald-200"
-              : "text-emerald-700/70"
+              : "text-black/60"
           }`}
         >
           <Utensils size={20} />
