@@ -5,8 +5,8 @@ const UserCards = ({ title, subtitle, colour, amount }) => {
     <div className="mt-4 rounded-3xl border border-white/80 bg-white/70 p-5 backdrop-blur-xl">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-emerald-100/60 p-2">
-            <CircleUser size={28} className="text-emerald-900" />
+          <div className="rounded-full  p-2">
+            <CircleUser size={28} className="text-emerald-800" />
           </div>
 
           <div>

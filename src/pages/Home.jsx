@@ -16,15 +16,15 @@ const Home = () => {
             TOTAL BALANCE
           </p>
 
-          <div className="rounded-2xl bg-emerald-100/60 p-3 shadow-inner">
-            <Scale className="text-emerald-900" size={24} />
+          <div className="rounded-2xl p-3 shadow-inner">
+            <Scale className="text-emerald-900" size={30} />
           </div>
         </div>
 
         <div className="mt-6">
           <p className="text-sm text-neutral-700">You owe</p>
           <div className="mt-1 flex items-end gap-2">
-            <h2 className="text-5xl font-semibold leading-none tracking-tight text-black">
+            <h2 className="text-5xl font-semibold leading-none tracking-tight text-neutral-900">
               {netOwed}
             </h2>
             <p className="pb-1 text-sm text-neutral-500">MVR net</p>
@@ -37,9 +37,7 @@ const Home = () => {
               <ArrowDownLeft size={15} />
               <p className="text-xs">Owed to you</p>
             </div>
-            <p className="mt-2 text-sm font-semibold text-black">
-              {owedToYou}
-            </p>
+            <p className="mt-2 text-sm font-semibold text-black">{owedToYou}</p>
           </div>
 
           <div className="rounded-2xl bg-neutral-100 px-4 py-3">
@@ -47,9 +45,7 @@ const Home = () => {
               <ArrowUpRight size={15} />
               <p className="text-xs">You owe</p>
             </div>
-            <p className="mt-2 text-sm font-semibold text-black">
-              {youOwe}
-            </p>
+            <p className="mt-2 text-sm font-semibold text-black">{youOwe}</p>
           </div>
         </div>
 
