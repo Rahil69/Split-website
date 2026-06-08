@@ -174,10 +174,13 @@ export const Split = () => {
                     </div>
                     <div className="mt-2 grid grid-cols-[1.35fr_0.65fr] gap-2 ">
                       <select
-                        className="w-full rounded-xl border border-neutral-300  py-2 text-sm "
-                        name="person 2"
+                        className="w-full rounded-xl border border-neutral-300 pl-2 py-2 text-sm text-neutral-900 "
+                        name="borrower List"
                         id="12"
-                      ></select>
+                      >
+                        <option value="Person 1">Person 1</option>
+                        <option value="Person 2">Person 2</option>
+                      </select>
                       <input
                         placeholder="130.00"
                         className="w-full border rounded-xl border-neutral-300 px-3"
