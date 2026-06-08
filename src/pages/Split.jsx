@@ -138,15 +138,13 @@ export const Split = () => {
 
       {peopleCount && (
         <div className="mt-6 rounded-3xl border border-white/80 bg-white/70 px-6 py-6 backdrop-blur-xl">
-          <h2 className="text-xl font-semibold text-black">
-            Participants
-          </h2>
+          <h2 className="text-xl font-semibold text-black">Participants</h2>
           <p className="mt-1 text-sm text-neutral-700">
             Add who joined the bill
           </p>
           <div className="mt-5 space-y-4">
             {participants.map((participant, index) => (
-              <div key={index} className="rounded-2xl  px-4 py-6">
+              <div key={index} className="rounded-2xl  px-4 py-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-emerald-900">
@@ -163,15 +161,30 @@ export const Split = () => {
 
                 <button
                   onClick={() => toggleBorrowed(index)}
-                  className="flex bg-emerald-100/40 hover:cursor-pointer mt-3 rounded-full px-3 py-1 !text-xs font-semibold text-black"
+                  className="flex  bg-emerald-100/40 hover:cursor-pointer mt-3 rounded-full px-3 py-1 !text-xs !font-semibold text-black"
                 >
                   BORROWED?
                   <ChevronDown size={15} className="ml-1" />
                 </button>
                 {participant.borrowedOpen ? (
-                  <p className="px-3 py-2 border border-emerald-100 text-sm text-neutral-700">
-                    Borrower list
-                  </p>
+                  <div className="px-3 py-2 rounded-2xl mt-1 ">
+                    <div className="flex justify-between items-center text-xs mt-1 px-2 text-neutral-700">
+                      <p>BORROWED FROM</p>
+                      <p>AMOUNT</p>
+                    </div>
+                    <div className="mt-2 grid grid-cols-[1.35fr_0.65fr] gap-2 ">
+                      <select
+                        className="w-full rounded-xl border border-neutral-300  py-2 text-sm "
+                        name="person 2"
+                        id="12"
+                      ></select>
+                      <input
+                        placeholder="130.00"
+                        className="w-full border rounded-xl border-neutral-300 px-3"
+                        type="number"
+                      />
+                    </div>
+                  </div>
                 ) : null}
               </div>
             ))}

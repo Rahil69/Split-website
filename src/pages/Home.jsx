@@ -10,18 +10,18 @@ const Home = () => {
 
   return (
     <section className="px-4">
-      <div className="overflow-hidden rounded-4xl border border-white/90 bg-white/75 p-5 shadow-lg shadow-emerald-900/10 backdrop-blur-xl">
-        <div className="flex items-center justify-between">
-          <p className="rounded-full bg-neutral-100 px-3 py-1 text-[11px] tracking-wide text-neutral-600">
+      <div className="pt-1 overflow-hidden rounded-4xl border border-white/90 bg-white/75 p-5 shadow-lg shadow-emerald-900/10 backdrop-blur-xl">
+        <div className="flex items-center justify-between ">
+          <p className="rounded-full bg-neutral-100 px-3 py-1 text-[11px] tracking-wide mt-3 text-neutral-600">
             TOTAL BALANCE
           </p>
 
-          <div className="rounded-2xl p-3 shadow-inner">
+          <div className="rounded-2xl   shadow-inner mt-3 p-3">
             <Scale className="text-emerald-900" size={30} />
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-4">
           <p className="text-sm text-neutral-700">You owe</p>
           <div className="mt-1 flex items-end gap-2">
             <h2 className="text-5xl font-semibold leading-none tracking-tight text-neutral-900">
