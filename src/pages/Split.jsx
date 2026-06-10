@@ -50,6 +50,19 @@ export const Split = () => {
     setParticipants(updaptedParticipants);
   };
 
+  const updateParticipant = (indexToUpdate, field, value) => {
+    const updaptedParticipants = participants.map((participant, index) => {
+      if (index === indexToUpdate) {
+        return {
+          ...participant,
+          [field]: value,
+        };
+      }
+      return participant;
+    });
+    setParticipants(updaptedParticipants);
+  };
+
   return (
     <section className="px-4">
       <div className="flex flex-col items-center px-6 py-6">
@@ -175,12 +188,25 @@ export const Split = () => {
                     <div className="mt-2 grid grid-cols-[1.35fr_0.65fr] gap-2 ">
                       <select
                         className="w-full rounded-xl border border-neutral-300 pl-2 py-2 text-sm text-neutral-900 "
-                        name="borrower List"
-                        id="12"
+                        value={participant.borrowedFrom}
+                        onChange={(e) =>
+                          updateParticipant(
+                            index,
+                            "borrowedFrom",
+                            e.target.value,
+                          )
+                        }
                       >
-                        <option value="Person 1">Person 1</option>
-                        <option value="Person 2">Person 2</option>
+                        <option value="">Select</option>
+                        {participants
+                          .filter((_, personIndex) => personIndex !== index)
+                          .map((person) => (
+                            <option key={person.name} value={person.name}>
+                              {person.name}
+                            </option>
+                          ))}
                       </select>
+
                       <input
                         placeholder="130.00"
                         className="w-full border rounded-xl border-neutral-300 px-3"
