@@ -10,7 +10,7 @@ const UserCards = ({ title, subtitle, colour, amount }) => {
           </div>
 
           <div>
-            <p className="text-sm  text-black"> {title}</p>
+            <p className="text-sm !font-medium text-black"> {title}</p>
             <p className="mt-1 text-xs text-neutral-600">{subtitle}</p>
           </div>
         </div>
