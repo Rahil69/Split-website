@@ -251,7 +251,7 @@ export const Split = () => {
         </span>
         Split Now
       </button>
-      <div className="mt-8 rounded-3xl border border-white/80 bg-white/70 px-5 py-5 backdrop-blur-xl">
+      <div className="mt-8 rounded-3xl border border-white/80 bg-white/70 px-5 py-5 backdrop-blur-xl shadow-[0_6px_14px_rgba(0,0,0,0.02)]">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs tracking-wide text-neutral-700">
@@ -266,12 +266,12 @@ export const Split = () => {
           <TrendingUp size={20} className="text-emerald-900" />
         </div>
 
-        <div className="mt-5 flex items-center justify-between text-xs">
+        <div className="mt-5 flex items-center justify-between text-xs ">
           <p className="text-neutral-800">Receiving</p>
           <p className="text-neutral-800">Owing</p>
         </div>
 
-        <div className="mt-2 flex h-2 overflow-hidden rounded-full bg-emerald-100">
+        <div className="mt-2 flex h-2  overflow-hidden rounded-full bg-emerald-100">
           <div className="h-full w-[80%] bg-emerald-900" />
           <div className="h-full w-[20%] bg-[#e8e8e8]" />
         </div>
