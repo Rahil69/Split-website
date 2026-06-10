@@ -7,7 +7,7 @@ import {
   ChevronDown,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 export const Split = () => {
   const [participants, setParticipants] = useState([]);
   const [peopleCount, setPeopleCount] = useState(null);
@@ -17,6 +17,17 @@ export const Split = () => {
   const [isBillFocused, setIsBillFocused] = useState(false);
   const perPersonAmount =
     billAmount && peopleCount ? Number(billAmount) / peopleCount : "0.00";
+
+  // useEffect(() => {
+  //   if (!peopleCount) return;
+
+  //   const defaultAmount = billAmount ? Number(billAmount) / peopleCount : 0;
+  //   const updatedParticipants = participants.map((participant) => ({
+  //     ...participant,
+  //     amount: defaultAmount.tofixed(2),
+  //   }));
+  //   setParticipants(updateParticipants);
+  // }, [billAmount, peopleCount]);
   const formatMoney = (amount) => {
     return new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 2,
@@ -38,7 +49,7 @@ export const Split = () => {
     setParticipants(newParticipants);
   };
   const toggleBorrowed = (indexToToggle) => {
-    const updaptedParticipants = participants.map((participant, index) => {
+    const updatedParticipants = participants.map((participant, index) => {
       if (index === indexToToggle) {
         return {
           ...participant,
@@ -47,11 +58,11 @@ export const Split = () => {
       }
       return participant;
     });
-    setParticipants(updaptedParticipants);
+    setParticipants(updatedParticipants);
   };
 
   const updateParticipant = (indexToUpdate, field, value) => {
-    const updaptedParticipants = participants.map((participant, index) => {
+    const updatedParticipants = participants.map((participant, index) => {
       if (index === indexToUpdate) {
         return {
           ...participant,
@@ -60,7 +71,7 @@ export const Split = () => {
       }
       return participant;
     });
-    setParticipants(updaptedParticipants);
+    setParticipants(updatedParticipants);
   };
 
   return (
@@ -110,7 +121,7 @@ export const Split = () => {
             onClick={() => handlePeopleCount(peopleCount === 2 ? null : 2)}
             className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
               peopleCount === 2
-                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-black"
+                ? "duration-200 ease-in border border-neutral-300/70 bg-emerald-100/70 text-black"
                 : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
@@ -121,7 +132,7 @@ export const Split = () => {
             onClick={() => handlePeopleCount(peopleCount === 3 ? null : 3)}
             className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
               peopleCount === 3
-                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-black"
+                ? "duration-200 ease-in border border-neutral-300/70 bg-emerald-100/70 text-black"
                 : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
@@ -132,7 +143,7 @@ export const Split = () => {
             onClick={() => handlePeopleCount(peopleCount === 4 ? null : 4)}
             className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
               peopleCount === 4
-                ? "duration-100 ease-in border border-neutral-300/70 bg-emerald-100/60 text-black"
+                ? "duration-200 ease-in border border-neutral-300/70 bg-emerald-100/70 text-black"
                 : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
@@ -155,33 +166,40 @@ export const Split = () => {
           <p className="mt-1 text-sm text-neutral-700">
             Add who joined the bill
           </p>
-          <div className="mt-5 space-y-4">
+          <div className="mt-5">
             {participants.map((participant, index) => (
-              <div key={index} className="rounded-2xl  px-4 py-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-emerald-900">
-                      <User size={20} className="fill-emerald-900" />
+              <div
+                key={index}
+                className="border-b border-neutral-200/70 px-1 py-4 last:border-b-0"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex gap-3">
+                    <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100/50 text-emerald-900">
+                      <User size={18} className="fill-emerald-900" />
                     </div>
-                    <p className="font-semibold text-black">
-                      {participant.name}
-                    </p>
+
+                    <div>
+                      <p className="font-semibold text-black">
+                        {participant.name}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm font-semibold text-black">
+
+                  <p className="pt-1 text-sm font-semibold text-black">
                     {formatMoney(perPersonAmount)}
                   </p>
                 </div>
 
                 <button
                   onClick={() => toggleBorrowed(index)}
-                  className="flex  bg-emerald-100/40 hover:cursor-pointer mt-3 rounded-full px-3 py-1 !text-xs !font-semibold text-black"
+                  className="mt-4 flex w-full items-center justify-between rounded-2xl bg-neutral-100 px-4 py-2.5 !text-sm !font-medium text-black hover:cursor-pointer"
                 >
-                  BORROWED?
-                  <ChevronDown size={15} className="ml-1" />
+                  <span>BORROWED?</span>
+                  <ChevronDown size={15} />
                 </button>
                 {participant.borrowedOpen ? (
-                  <div className="px-3 py-2 rounded-2xl mt-1 ">
-                    <div className="flex justify-between items-center text-xs mt-1 px-2 text-neutral-700">
+                  <div className="mt-2 rounded-2xl bg-neutral-50 px-3 py-3">
+                    <div className="flex items-center justify-between px-2 text-xs text-neutral-700">
                       <p>BORROWED FROM</p>
                       <p>AMOUNT</p>
                     </div>
@@ -208,8 +226,12 @@ export const Split = () => {
                       </select>
 
                       <input
-                        placeholder="130.00"
+                        value={participant.amount}
+                        onChange={(e) =>
+                          updateParticipant(index, "amount", e.target.value)
+                        }
                         className="w-full border rounded-xl border-neutral-300 px-3"
+                        placeholder="0.00"
                         type="number"
                       />
                     </div>
@@ -223,7 +245,7 @@ export const Split = () => {
 
       {/* SPLIT NOW  */}
 
-      <button className="mt-7 flex w-full items-center justify-center rounded-2xl bg-emerald-900 py-4 !text-lg font-semibold text-white  hover:cursor-pointer">
+      <button className="mt-7 flex w-full items-center justify-center rounded-2xl bg-emerald-900 py-4 !text-xl !font-semibold text-white hover:cursor-pointer">
         <span className="pr-3">
           <ArrowRightLeft size={25} className="text-white" />
         </span>
