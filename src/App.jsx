@@ -8,6 +8,7 @@ import "./App.css";
 
 function App() {
   const [activePage, setActivePage] = useState("Split");
+  const [splitData, setSplitData] = useState(null);
   const showShell = activePage !== "ReviewSplit";
   return (
     <div className="mx-auto min-h-screen w-full max-w-md bg-neutral-100 text-black">
@@ -32,9 +33,11 @@ function App() {
 
         <div className="mt-5">
           {activePage === "Home" && <Home />}
-          {activePage === "Split" && <Split setActivePage={setActivePage} />}
+          {activePage === "Split" && (
+            <Split setActivePage={setActivePage} setSplitData={setSplitData} />
+          )}
           {activePage === "ReviewSplit" && (
-            <ReviewSplit setActivePage={setActivePage} />
+            <ReviewSplit setActivePage={setActivePage} splitData={splitData} />
           )}
         </div>
       </main>

@@ -9,7 +9,7 @@ import {
   StickyNoteCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-export const Split = ({ setActivePage }) => {
+export const Split = ({ setActivePage, setSplitData }) => {
   const [participants, setParticipants] = useState([]);
   const [peopleCount, setPeopleCount] = useState(null);
   const participantRows = Array.from({ length: peopleCount || 0 });
@@ -89,7 +89,7 @@ export const Split = ({ setActivePage }) => {
               onFocus={() => setIsBillFocused(true)}
               onBlur={() => setIsBillFocused(false)}
               placeholder={isBillFocused ? "" : "0.00"}
-              className="text-center w-38 bg-transparent font-semibold tracking-tight text-emerald-900 outline-none placeholder:text-neutral-400"
+              className="text-center w-38 bg-transparent !font-medium tracking-tight text-black outline-none placeholder:text-neutral-400"
             />
           </span>
         </div>
@@ -100,7 +100,7 @@ export const Split = ({ setActivePage }) => {
         </p>
 
         <div className="flex items-center gap-4 text-xl font-thin tracking-wide">
-          <div className="rounded-xl bg-emerald-100/60 p-2">
+          <div className="rounded-full bg-emerald-100/40  p-2">
             <Utensils size={18} className="text-emerald-900" />
           </div>
           <p className="text-neutral-700 ">
@@ -245,7 +245,15 @@ export const Split = ({ setActivePage }) => {
       {/* SPLIT NOW  */}
 
       <button
-        onClick={() => setActivePage("ReviewSplit")}
+        onClick={() => {
+          setSplitData({
+            billAmount,
+            restaurantName,
+            peopleCount,
+            participants,
+          });
+          setActivePage("ReviewSplit");
+        }}
         className="mt-7 flex w-full items-center justify-center rounded-2xl bg-emerald-900 py-4 !text-xl  text-white hover:cursor-pointer"
       >
         <span className="pr-3">
