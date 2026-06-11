@@ -33,7 +33,9 @@ function App() {
         <div className="mt-5">
           {activePage === "Home" && <Home />}
           {activePage === "Split" && <Split setActivePage={setActivePage} />}
-          {activePage === "ReviewSplit" && <ReviewSplit />}
+          {activePage === "ReviewSplit" && (
+            <ReviewSplit setActivePage={setActivePage} />
+          )}
         </div>
       </main>
 
