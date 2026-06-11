@@ -8,8 +8,8 @@ function BottomNav(props) {
           onClick={() => props.setActivePage("Home")}
           className={`flex h-11 items-center justify-center rounded-full text-sm font-extrabold  ${
             props.activePage === "Home"
-              ? "border border-neutral-400/35 bg-neutral-400/35 text-emerald-700 backdrop-blur-md transition "
-              : "text-black/65"
+              ? "border border-neutral-400/35 text-neutral-800 bg-neutral-400/35  backdrop-blur-md transition "
+              : "text-black/55"
           }`}
         >
           <Home size={20} />
@@ -19,8 +19,8 @@ function BottomNav(props) {
           onClick={() => props.setActivePage("Split")}
           className={`flex h-11 items-center justify-center rounded-full text-sm font-extrabold ${
             props.activePage === "Split"
-              ? "border border-neutral-400/35 bg-neutral-400/35 text-emerald-700  backdrop-blur-md transition"
-              : "text-black/65"
+              ? "border border-neutral-400/35 text-neutral-800 bg-neutral-400/35 backdrop-blur-md transition"
+              : "text-black/55"
           }`}
         >
           <Utensils size={20} />
