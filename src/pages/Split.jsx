@@ -6,9 +6,10 @@ import {
   CircleSmall,
   ChevronDown,
   User,
+  StickyNoteCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-export const Split = () => {
+export const Split = ({ setActivePage }) => {
   const [participants, setParticipants] = useState([]);
   const [peopleCount, setPeopleCount] = useState(null);
   const participantRows = Array.from({ length: peopleCount || 0 });
@@ -245,11 +246,14 @@ export const Split = () => {
 
       {/* SPLIT NOW  */}
 
-      <button className="mt-7 flex w-full items-center justify-center rounded-2xl bg-emerald-900 py-4 !text-xl !font-semibold text-white hover:cursor-pointer">
+      <button
+        onClick={() => setActivePage("ReviewSplit")}
+        className="mt-7 flex w-full items-center justify-center rounded-2xl bg-emerald-900 py-4 !text-xl !font-semibold text-white hover:cursor-pointer"
+      >
         <span className="pr-3">
-          <ArrowRightLeft size={25} className="text-white" />
+          <StickyNoteCheck size={24} className="text-white" />
         </span>
-        Split Now
+        Review split
       </button>
       <div className="mt-8 rounded-3xl border border-white/80 bg-white/70 px-5 py-5 backdrop-blur-xl shadow-[0_6px_14px_rgba(0,0,0,0.02)]">
         <div className="flex items-center justify-between">
