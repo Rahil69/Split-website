@@ -2,9 +2,14 @@ import React from "react";
 import { ArrowLeft, ChefHat, Users } from "lucide-react";
 
 const ReviewSplit = ({ setActivePage, splitData }) => {
+  const borrowedPeople =
+    splitData?.participants?.filter(
+      (participant) => participant.borrowedFrom,
+    ) || [];
+
   return (
     <div className="min-h-screen bg-neutral-100 px-4 pt-24 text-black">
-      <header className="fixed left-1/2 top-0 z-20 w-full max-w-md -translate-x-1/2 border-b border-white/80 bg-neutral-100/85 px-4 py-4 backdrop-blur-2xl">
+      <header className="fixed left-1/2 top-0 z-20 w-full max-w-md -translate-x-1/2 border-b  border-white/80 bg-neutral-100/85 px-4 py-4 backdrop-blur-2xl">
         <div className="relative flex items-center justify-center">
           <button
             onClick={() => setActivePage("Split")}
@@ -33,21 +38,32 @@ const ReviewSplit = ({ setActivePage, splitData }) => {
           </div>
           <div>
             <p className="text-sm px-2 text-neutral-500">Restaurant</p>
-            <p className="px-2 text-sm text-base font-medium">
+            <p className="px-2 text-sm  font-medium">
               {splitData.restaurantName
                 ? splitData.restaurantName
                 : "Not added"}
             </p>
           </div>
         </div>
-        <div className="mt-5 flex">
+        <div className="mt-5 flex items-center">
           <div className="flex items-center justify-between rounded-full border  border-white/10 bg-emerald-100/40 px-2 py-2 ">
             <Users size={25} className="text-emerald-900" />
           </div>
-          <div>
-            <p className="text-sm px-2 text-neutral-500">Participants</p>
-            <p className="px-2 text-sm text-base font-medium ">
-              {splitData.peopleCount ? splitData.peopleCount : "No people"}
+          <div className="min-w-0 flex-1">
+            <div className="flex justify-between items-center">
+              <p className="text-sm px-2 text-neutral-500">Participants</p>
+              <div className=" rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-600">
+                {borrowedPeople.length > 0
+                  ? `${borrowedPeople.length} Borrower${borrowedPeople.length === 1 ? "" : "s"}`
+                  : ""}
+              </div>
+            </div>
+            <p className="px-2 text-sm  font-medium ">
+              {splitData.peopleCount ? (
+                <p>{splitData.peopleCount} people</p>
+              ) : (
+                "No people"
+              )}
             </p>
           </div>
         </div>
