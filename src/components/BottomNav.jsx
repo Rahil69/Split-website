@@ -30,7 +30,7 @@ function BottomNav(props) {
           <span
             className={`flex h-10 w-16 items-center justify-center rounded-full transition ${
               props.activePage === "Split"
-                ? "bg-white/20 shadow-md  ring-black/5"
+                ? "bg-white/90 shadow-md  ring-black/5"
                 : ""
             }`}
           >
