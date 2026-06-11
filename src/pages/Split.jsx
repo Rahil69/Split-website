@@ -41,7 +41,7 @@ export const Split = ({ setActivePage }) => {
     const defaultAmount = billAmount ? Number(billAmount) / count : 0;
 
     const newParticipants = Array.from({ length: count }, (_, index) => ({
-      name: `folk ${index + 1}`,
+      name: `Person ${index + 1}`,
       borrowedOpen: false,
       borrowedFrom: "",
       amount: defaultAmount.toFixed(2),
@@ -99,11 +99,11 @@ export const Split = ({ setActivePage }) => {
           WHERE DID YOU EAT?
         </p>
 
-        <div className="flex items-center gap-4 text-xl font-bold tracking-wide">
+        <div className="flex items-center gap-4 text-xl font-thin tracking-wide">
           <div className="rounded-xl bg-emerald-100/60 p-2">
             <Utensils size={18} className="text-emerald-900" />
           </div>
-          <p className="text-neutral-700">
+          <p className="text-neutral-700 ">
             <input
               type="text"
               placeholder="Restaurant Name "
@@ -163,8 +163,8 @@ export const Split = ({ setActivePage }) => {
 
       {peopleCount && (
         <div className="mt-6 rounded-3xl border border-white/80 bg-white/70 px-6 py-6 backdrop-blur-xl">
-          <h2 className="text-xl font-semibold text-black">Participants</h2>
-          <p className="mt-1 text-sm text-neutral-700">
+          <h2 className="text-xl  text-black">Participants</h2>
+          <p className="mt-1 text-sm text-neutral-600">
             Add who joined the bill
           </p>
           <div className="mt-5">
@@ -180,9 +180,7 @@ export const Split = ({ setActivePage }) => {
                     </div>
 
                     <div>
-                      <p className="font-semibold text-black">
-                        {participant.name}
-                      </p>
+                      <p className="font-thin text-black">{participant.name}</p>
                     </div>
                   </div>
 
@@ -193,7 +191,7 @@ export const Split = ({ setActivePage }) => {
 
                 <button
                   onClick={() => toggleBorrowed(index)}
-                  className="mt-4 flex w-full items-center justify-between rounded-2xl bg-neutral-100 px-4 py-2.5 !text-sm !font-medium text-black hover:cursor-pointer"
+                  className="mt-4 flex w-full items-center justify-between rounded-2xl bg-neutral-100 px-4 py-2.5 !text-sm !font-thin text-black hover:cursor-pointer"
                 >
                   <span>BORROWED?</span>
                   <ChevronDown size={15} />
@@ -258,11 +256,11 @@ export const Split = ({ setActivePage }) => {
       <div className="mt-8 rounded-3xl border border-white/80 bg-white/70 px-5 py-5 backdrop-blur-xl shadow-[0_6px_14px_rgba(0,0,0,0.02)]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs tracking-wide text-neutral-700">
+            <p className="text-xs !font-thin tracking-wide text-neutral-700">
               BALANCE OVERVIEW
             </p>
 
-            <p className="mt-2 text-lg font-semibold text-black">
+            <p className="mt-2 text-lg font-medium text-black">
               You are owed 420 MVR
             </p>
           </div>
