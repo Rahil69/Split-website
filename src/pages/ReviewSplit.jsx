@@ -8,7 +8,7 @@ const ReviewSplit = ({ setActivePage, splitData }) => {
     ) || [];
 
   return (
-    <div className="min-h-screen bg-neutral-100 px-4 pt-24 text-black">
+    <div className="min-h-screen bg-neutral-100 px-4 pt-10 text-black">
       <header className="fixed left-1/2 top-0 z-20 w-full max-w-md -translate-x-1/2 border-b  border-white/80 bg-neutral-100/85 px-4 py-4 backdrop-blur-2xl">
         <div className="relative flex items-center justify-center">
           <button
@@ -27,7 +27,7 @@ const ReviewSplit = ({ setActivePage, splitData }) => {
         </div>
       </header>
       <section className="rounded-3xl border border-white/80  bg-white/70 p-5 backdrop-blur-xl">
-        <p className="text-sm tracking-wide text-neutral-600">TOTAL BILL</p>
+        <p className="text-sm tracking-wide text-neutral-600 ">TOTAL BILL</p>
         <h1 className="text-4xl  font-thin text-black mt-1.5 border-b border-neutral-200 pb-4">
           {splitData.billAmount ? splitData.billAmount : "0.00"}
           <span className="text-sm px-1 text-neutral-600 "> MVR</span>
