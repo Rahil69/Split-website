@@ -29,7 +29,11 @@ const ReviewSplit = ({ setActivePage, splitData }) => {
       <section className="rounded-3xl border border-white/80  bg-white/70 p-5 backdrop-blur-xl">
         <p className="text-sm tracking-wide text-neutral-600 ">TOTAL BILL</p>
         <h1 className="text-4xl  font-thin text-black mt-1.5 border-b border-neutral-200 pb-4">
-          {splitData.billAmount ? splitData.billAmount : "0.00"}
+          {splitData.billAmount ? (
+            <span> {splitData.billAmount}.00 </span>
+          ) : (
+            "0.00"
+          )}
           <span className="text-sm px-1 text-neutral-600 "> MVR</span>
         </h1>
         <div className="mt-5 flex">
