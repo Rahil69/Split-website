@@ -283,7 +283,7 @@ export const Split = ({ setActivePage, setSplitData }) => {
 
         <div className="mt-2 flex h-2  overflow-hidden rounded-full bg-emerald-100">
           <div className="h-full w-[80%] bg-emerald-900" />
-          <div className="h-full w-[20%] bg-[#e8e8e8]" />
+          <div className="h-full w-[20%] bg-neutral-200" />
         </div>
       </div>
     </section>

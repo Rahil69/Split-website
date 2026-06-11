@@ -52,7 +52,7 @@ const Home = () => {
         <div className="mt-5">
           <div className="flex h-2.5 overflow-hidden rounded-full bg-neutral-200">
             <div className="h-full w-[17%] bg-emerald-800" />
-            <div className="h-full w-[83%] bg-neutral-300" />
+            <div className="h-full w-[83%] bg-neutral-200" />
           </div>
           <div className="mt-2 flex items-center justify-between text-[11px] text-neutral-500">
             <p>Owed to you</p>
