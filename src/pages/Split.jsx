@@ -81,7 +81,7 @@ export const Split = ({ setActivePage, setSplitData }) => {
         <p className="text-xs tracking-wide text-black">TOTAL BILL</p>
 
         <div className="mt-3 flex items-center justify-center">
-          <span className="text-5xl font-semibold tracking-tight text-neutral-400">
+          <span className="text-5xl font-medium tracking-tight text-neutral-400">
             <input
               type="number"
               value={billAmount}
@@ -109,7 +109,7 @@ export const Split = ({ setActivePage, setSplitData }) => {
               placeholder="Restaurant Name "
               value={restaurantName}
               onChange={(e) => setRestaurantName(e.target.value)}
-              className="text-4xl outline-none bg-transparent font-semibold tracking-tight text-black placeholder:text-neutral-400 placeholder:text-xl"
+              className="text-4xl outline-none bg-transparent font-medium tracking-tight text-black placeholder:text-neutral-400 placeholder:text-xl"
             />
           </p>
         </div>
@@ -126,7 +126,7 @@ export const Split = ({ setActivePage, setSplitData }) => {
                 : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
-            <p className="text-xl font-semibold">2</p>
+            <p className="text-xl font-medium">2</p>
             <p className="mt-1 text-xs text-neutral-700">People</p>
           </button>
           <button
@@ -137,7 +137,7 @@ export const Split = ({ setActivePage, setSplitData }) => {
                 : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
-            <p className="text-xl font-semibold">3</p>
+            <p className="text-xl font-medium">3</p>
             <p className="mt-1 text-xs text-neutral-700">People</p>
           </button>
           <button
@@ -148,12 +148,12 @@ export const Split = ({ setActivePage, setSplitData }) => {
                 : "border border-neutral-300/70 bg-white/70 text-black/80"
             }`}
           >
-            <p className="text-xl font-semibold">4</p>
+            <p className="text-xl font-medium">4</p>
             <p className="mt-1 text-xs text-neutral-700">People</p>
           </button>
 
           <button className="rounded-2xl border border-neutral-300/70 bg-white/70 p-4 text-center backdrop-blur hover:cursor-pointer">
-            <p className="text-xl font-semibold text-black">5+</p>
+            <p className="text-xl font-medium text-black">5+</p>
             <p className="mt-1 text-xs text-neutral-700">Custom</p>
           </button>
         </div>
@@ -184,7 +184,7 @@ export const Split = ({ setActivePage, setSplitData }) => {
                     </div>
                   </div>
 
-                  <p className="pt-1 text-sm font-semibold text-black">
+                  <p className="pt-1 text-sm font-medium text-black">
                     {formatMoney(perPersonAmount)}
                   </p>
                 </div>

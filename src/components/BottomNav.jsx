@@ -6,7 +6,7 @@ function BottomNav(props) {
       <div className="grid grid-cols-2 gap-1">
         <button
           onClick={() => props.setActivePage("Home")}
-          className={`flex h-11 items-center justify-center rounded-full text-sm font-extrabold  ${
+          className={`flex h-11 items-center justify-center rounded-full text-sm font-medium  ${
             props.activePage === "Home"
               ? "border border-neutral-400/35 text-neutral-800 bg-neutral-400/35  backdrop-blur-md transition "
               : "text-black/55"
@@ -17,7 +17,7 @@ function BottomNav(props) {
 
         <button
           onClick={() => props.setActivePage("Split")}
-          className={`flex h-11 items-center justify-center rounded-full text-sm font-extrabold ${
+          className={`flex h-11 items-center justify-center rounded-full text-sm font-medium ${
             props.activePage === "Split"
               ? "border border-neutral-400/35 text-neutral-800 bg-neutral-400/35 backdrop-blur-md transition"
               : "text-black/55"

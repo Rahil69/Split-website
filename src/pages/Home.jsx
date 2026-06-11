@@ -24,7 +24,7 @@ const Home = () => {
         <div className="mt-4">
           <p className="text-sm text-neutral-700">You owe</p>
           <div className="mt-1 flex items-end gap-2">
-            <h2 className="text-5xl font-semibold leading-none tracking-tight text-neutral-900">
+            <h2 className="text-5xl font-medium leading-none tracking-tight text-neutral-900">
               {netOwed}
             </h2>
             <p className="pb-1 text-sm text-neutral-500">MVR net</p>
@@ -37,7 +37,7 @@ const Home = () => {
               <ArrowDownLeft size={15} />
               <p className="text-xs">Owed to you</p>
             </div>
-            <p className="mt-2 text-sm font-semibold text-black">{owedToYou}</p>
+            <p className="mt-2 text-sm font-medium text-black">{owedToYou}</p>
           </div>
 
           <div className="rounded-2xl bg-neutral-100 px-4 py-3">
@@ -45,7 +45,7 @@ const Home = () => {
               <ArrowUpRight size={15} />
               <p className="text-xs">You owe</p>
             </div>
-            <p className="mt-2 text-sm font-semibold text-black">{youOwe}</p>
+            <p className="mt-2 text-sm font-medium text-black">{youOwe}</p>
           </div>
         </div>
 
@@ -62,8 +62,8 @@ const Home = () => {
       </div>
       <div className="mt-9">
         <div className="flex items-center justify-between px-2 text-black">
-          <h2 className="text-xl font-semibold">Active Debts </h2>
-          <button className="text-sm font-semibold text-black hover:cursor-pointer">
+          <h2 className="text-xl font-medium">Active Debts </h2>
+          <button className="text-sm font-medium text-neutral-700 hover:cursor-pointer">
             View all
           </button>
         </div>

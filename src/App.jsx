@@ -15,7 +15,7 @@ function App() {
       <main className="h-screen overflow-y-auto pb-28 pt-6">
         {showShell && (
           <header className="flex items-center justify-between px-6">
-            <h1 className="flex text-xl font-extrabold tracking-tight text-black">
+            <h1 className="flex text-xl font-medium tracking-tight text-black">
               <p>
                 <User
                   size={30}
