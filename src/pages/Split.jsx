@@ -246,7 +246,7 @@ export const Split = ({ setActivePage }) => {
 
       <button
         onClick={() => setActivePage("ReviewSplit")}
-        className="mt-7 flex w-full items-center justify-center rounded-2xl bg-emerald-900 py-4 !text-xl !font-semibold text-white hover:cursor-pointer"
+        className="mt-7 flex w-full items-center justify-center rounded-2xl bg-emerald-900 py-4 !text-xl  text-white hover:cursor-pointer"
       >
         <span className="pr-3">
           <StickyNoteCheck size={24} className="text-white" />
