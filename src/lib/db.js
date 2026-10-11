@@ -1,6 +1,6 @@
 // shortcut: the whole "server" is one localStorage blob, so every user lives in this browser.
 // Move to Supabase (users, friendships, splits, debts, notifications tables) for real multi-device use.
-const KEY = "split.db.v5";
+const KEY = "split.db.v6";
 const SESSION_KEY = "split.session";
 
 export const cents = (n) => Math.round(Number(n) * 100) / 100;
@@ -46,11 +46,23 @@ export const seed = (now = Date.now()) => ({
     { from: "hafiz", to: "raahil", status: "pending" },
   ],
   splits: [
-    { id: "s1", by: "yazak", place: "Sea House", bill: 480, share: 160, people: ["yazak", "raahil", "ali"], date: now - DAY },
+    {
+      id: "s1",
+      by: "yazak",
+      payer: "yazak",
+      place: "Sea House",
+      bill: 480,
+      shares: { yazak: 160, raahil: 160, ali: 160 },
+      people: ["yazak", "raahil", "ali"],
+      date: now - DAY,
+    },
   ],
-  debts: [{ id: "d1", from: "raahil", to: "yazak", amount: 160, place: "Sea House", date: now - DAY }],
+  debts: [
+    { id: "d1", from: "raahil", to: "yazak", amount: 160, place: "Sea House", date: now - DAY },
+    { id: "d2", from: "ali", to: "yazak", amount: 160, place: "Sea House", date: now - DAY },
+  ],
   notifications: [
-    { id: "n1", to: "raahil", text: "You borrowed 160.00 MVR from Yazak at Sea House", go: "Balances", date: now - DAY, read: false },
+    { id: "n1", to: "raahil", text: "Yazak paid at Sea House. You owe them 160.00 MVR", go: "Balances", date: now - DAY, read: false },
     { id: "n2", to: "raahil", text: "Hafiz sent you a friend request", go: "Friends", date: now - DAY / 2, read: false },
   ],
 });
@@ -191,24 +203,51 @@ export const respond = (db, me, from, accept) => {
 
 // ---- splits and debts ----
 
-// What someone borrowed; a blank amount means they borrowed their whole share.
-export const borrowed = (p, share) =>
-  p.borrowedFrom === null ? 0 : cents(p.amount === "" ? share : p.amount);
+// A split draft: { bill, place, payer, mode: "equal" | "custom", people: [{ id, amount }] }.
+// Everyone except the payer owes the payer their share.
 
-// Whoever borrowed owes the person who covered them.
-export const debtsFromSplit = ({ people, place, share }, date = Date.now()) =>
-  people
-    .filter((p) => borrowed(p, share) > 0)
-    .map((p, i) => ({
-      id: `${date}-${i}`,
-      from: p.id,
-      to: p.borrowedFrom,
-      amount: borrowed(p, share),
-      place,
-      date,
-    }));
+// What friends typed in custom mode; blank counts as 0.
+const othersTotal = ({ payer, people }) =>
+  cents(people.filter((p) => p.id !== payer).reduce((t, p) => t + (Number(p.amount) || 0), 0));
+
+// Each person's share. Equal splits round to cents. In custom mode friends' shares are what
+// was typed and the payer covers the rest, so the shares always add up to the bill.
+export const sharesOf = ({ bill, payer, mode, people }) =>
+  Object.fromEntries(
+    people.map((p) => [
+      p.id,
+      mode !== "custom"
+        ? cents(Number(bill) / people.length)
+        : p.id === payer
+          ? cents(Number(bill) - othersTotal({ payer, people }))
+          : cents(Number(p.amount) || 0),
+    ]),
+  );
+
+// Why a draft can't be saved, or null. Shared by the form and saveSplit.
+export const splitProblem = (draft) => {
+  const bill = Number(draft.bill);
+  if (!(bill > 0)) return "Enter the total bill to continue.";
+  if (draft.people.length < 2) return "Add at least one friend who was there.";
+  if (!draft.people.some((p) => p.id === draft.payer)) return "Choose who paid the bill.";
+  if (draft.mode === "custom") {
+    if (draft.people.some((p) => p.id !== draft.payer && p.amount !== "" && !(Number(p.amount) >= 0)))
+      return "Amounts can't be negative.";
+    const others = othersTotal(draft);
+    if (others > cents(bill)) return `Those amounts are ${money(others - bill)} MVR more than the bill.`;
+  }
+  return null;
+};
+
+export const debtsFromSplit = (draft, date = Date.now()) => {
+  const shares = sharesOf(draft);
+  return draft.people
+    .filter((p) => p.id !== draft.payer && shares[p.id] > 0)
+    .map((p, i) => ({ id: `${date}-${i}`, from: p.id, to: draft.payer, amount: shares[p.id], place: draft.place, date }));
+};
 
 export const saveSplit = (db, me, draft, date = Date.now()) => {
+  if (splitProblem(draft)) return db; // never store a split that doesn't add up
   const debts = debtsFromSplit(draft, date);
   db = {
     ...db,
@@ -217,9 +256,10 @@ export const saveSplit = (db, me, draft, date = Date.now()) => {
       {
         id: `${date}`,
         by: me,
+        payer: draft.payer,
         place: draft.place,
         bill: cents(draft.bill),
-        share: draft.share,
+        shares: sharesOf(draft),
         people: draft.people.map((p) => p.id),
         date,
       },
@@ -230,9 +270,9 @@ export const saveSplit = (db, me, draft, date = Date.now()) => {
   for (const d of debts) {
     // whoever entered the split already knows; tell everyone else involved
     if (d.from !== me)
-      db = notify(db, d.from, `You borrowed ${money(d.amount)} MVR from ${nameOf(db, d.to)}${where}`, "Balances", date);
+      db = notify(db, d.from, `${nameOf(db, d.to)} paid${where}. You owe them ${money(d.amount)} MVR`, "Balances", date);
     if (d.to !== me)
-      db = notify(db, d.to, `${nameOf(db, d.from)} borrowed ${money(d.amount)} MVR from you${where}`, "Balances", date);
+      db = notify(db, d.to, `${nameOf(db, d.from)} owes you ${money(d.amount)} MVR${where}`, "Balances", date);
   }
   return db;
 };

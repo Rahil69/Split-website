@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import {
   balances,
   debtsFromSplit,
+  sharesOf,
+  splitProblem,
   friendsOf,
   markRead,
   respond,
@@ -17,17 +19,32 @@ import {
   unread,
 } from "./db.js";
 
-// debts: blank amount = whole share, odd cents rounded
-const people = [
-  { id: "a", borrowedFrom: null, amount: "" },
-  { id: "b", borrowedFrom: "a", amount: "33.333" },
-  { id: "c", borrowedFrom: null, amount: "" },
-  { id: "d", borrowedFrom: "c", amount: "" },
-];
-const debts = debtsFromSplit({ people, place: "Cafe", share: 20 }, 1);
-assert.deepEqual(debts.map((d) => [d.from, d.to, d.amount]), [["b", "a", 33.33], ["d", "c", 20]]);
+// splits: equal shares, custom shares, payer owed by everyone else, validation
+const draft = (over) => ({
+  bill: "300",
+  place: "Cafe",
+  payer: "a",
+  mode: "equal",
+  people: [{ id: "a", amount: "" }, { id: "b", amount: "" }, { id: "c", amount: "" }],
+  ...over,
+});
+assert.deepEqual(sharesOf(draft({ bill: "100" })), { a: 33.33, b: 33.33, c: 33.33 });
+assert.deepEqual(debtsFromSplit(draft(), 1).map((d) => [d.from, d.to, d.amount]), [["b", "a", 100], ["c", "a", 100]]);
+// custom: friends' typed amounts, payer covers the rest (blank = 0), so it always adds up
+const custom = draft({ mode: "custom", people: [{ id: "a", amount: "999" }, { id: "b", amount: "200" }, { id: "c", amount: "" }] });
+assert.equal(splitProblem(custom), null);
+assert.deepEqual(sharesOf(custom), { a: 100, b: 200, c: 0 }); // payer's own typed 999 is ignored
+assert.deepEqual(debtsFromSplit(custom, 1).map((d) => [d.from, d.amount]), [["b", 200]]); // c owes nothing
+const over = { ...custom, people: [{ id: "a", amount: "" }, { id: "b", amount: "1000" }, { id: "c", amount: "50" }] };
+assert.match(splitProblem(over), /750.00 MVR more than the bill/);
+assert.match(splitProblem({ ...custom, people: [{ id: "a", amount: "" }, { id: "b", amount: "-5" }, { id: "c", amount: "" }] }), /negative/);
+assert.match(splitProblem(draft({ bill: "" })), /total bill/);
+assert.match(splitProblem(draft({ people: [{ id: "a", amount: "" }] })), /at least one friend/);
+assert.match(splitProblem(draft({ payer: "zz" })), /who paid/);
+// the reported case: bill 50, friend typed 1000
+assert.match(splitProblem(draft({ bill: "50", mode: "custom", people: [{ id: "a", amount: "" }, { id: "y", amount: "1000" }] })), /Those amounts are 950.00 MVR more than the bill/);
 
-const b = balances([...debts, { from: "a", to: "c", amount: 50 }, { from: "c", to: "a", amount: 10 }], "a");
+const b = balances([{ from: "b", to: "a", amount: 33.33 }, { from: "a", to: "c", amount: 50 }, { from: "c", to: "a", amount: 10 }, { from: "d", to: "c", amount: 5 }], "a");
 assert.deepEqual(b.people, [{ id: "c", amount: -40 }, { id: "b", amount: 33.33 }]); // d→c doesn't involve a
 assert.equal(b.net, -6.67);
 
@@ -44,22 +61,20 @@ assert.equal(db.notifications[0].to, "raahil");
 db = respond(db, "raahil", "hafiz", false);
 assert.ok(!db.friendships.some((f) => f.from === "hafiz"));
 
-// split by Raahil: Ali borrows from Raahil, Raahil borrows from Sara
-const before = unread(db, "ali");
-db = saveSplit(db, "raahil", {
-  bill: "300",
-  place: "Cafe",
-  share: 100,
-  people: [
-    { id: "raahil", borrowedFrom: "sara", amount: "40" },
-    { id: "ali", borrowedFrom: "raahil", amount: "" },
-    { id: "sara", borrowedFrom: null, amount: "" },
-  ],
-});
-assert.equal(unread(db, "ali"), before + 1); // borrower told
-assert.match(db.notifications.find((n) => n.to === "sara").text, /Raahil borrowed 40.00 MVR from you at Cafe/);
-assert.ok(!db.notifications.some((n) => n.to === "raahil" && /Cafe/.test(n.text))); // creator not told
-assert.deepEqual(balances(db.debts, "raahil").people.find((p) => p.id === "ali"), { id: "ali", amount: 100 });
+// split by Raahil, Sara paid: Ali and Raahil owe Sara; Ali and Sara are notified, Raahil isn't
+const beforeAli = unread(db, "ali");
+db = saveSplit(db, "raahil", draft({ payer: "sara", people: [{ id: "raahil", amount: "" }, { id: "ali", amount: "" }, { id: "sara", amount: "" }] }));
+assert.equal(unread(db, "ali"), beforeAli + 1);
+assert.match(db.notifications.find((n) => n.to === "ali").text, /Sara paid at Cafe. You owe them 100.00 MVR/);
+const saraSees = db.notifications.filter((n) => n.to === "sara").map((n) => n.text);
+assert.ok(saraSees.includes("Raahil owes you 100.00 MVR at Cafe") && saraSees.includes("Ali owes you 100.00 MVR at Cafe"));
+assert.ok(!db.notifications.some((n) => n.to === "raahil" && /Cafe/.test(n.text)));
+assert.deepEqual(balances(db.debts, "raahil").people.find((p) => p.id === "sara"), { id: "sara", amount: -100 });
+// a split where friends owe more than the bill is never saved
+assert.equal(saveSplit(db, "raahil", over), db);
+// Raahil paid a later meal with Ali
+db = saveSplit(db, "raahil", draft({ payer: "raahil", people: [{ id: "raahil", amount: "" }, { id: "ali", amount: "" }] }));
+assert.deepEqual(balances(db.debts, "raahil").people.find((p) => p.id === "ali"), { id: "ali", amount: 150 });
 
 db = settle(db, "raahil", "ali");
 assert.equal(balances(db.debts, "raahil").people.find((p) => p.id === "ali"), undefined);

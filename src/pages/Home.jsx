@@ -130,7 +130,7 @@ const Home = ({ db, setDb, me, setActivePage }) => {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">{money(s.share)}</p>
+                  <p className="font-semibold">{money(s.shares?.[me] ?? 0)}</p>
                   <p className="text-sm text-sub">your share</p>
                 </div>
               </li>

@@ -19,12 +19,15 @@ const ReviewSplit = ({ db, me, draft, onBack, onConfirm }) => {
       <h2 className="mt-4 text-xl font-semibold tracking-tight">{draft.place || "Your bill"}</h2>
       <p className="figure mt-4 text-5xl">{money(draft.bill)}</p>
       <p className="mt-2 text-sub">
-        Split {draft.people.length} ways, {money(draft.share)} MVR each
+        Paid by {draft.payer === me ? "you" : n(draft.payer)},{" "}
+        {draft.mode === "custom"
+          ? `custom amounts for ${draft.people.length} people`
+          : `split ${draft.people.length} ways at ${money(draft.bill / draft.people.length)} MVR each`}
       </p>
 
       <h3 className="mt-10 font-semibold">What this adds</h3>
       {debts.length === 0 ? (
-        <p className="mt-1 text-sub">Everyone covered their own share, so no one owes anything.</p>
+        <p className="mt-1 text-sub">Only the person who paid had anything to pay, so no one owes anything.</p>
       ) : (
         <ul className="mt-2">
           {debts.map((d) => (

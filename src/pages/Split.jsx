@@ -1,59 +1,56 @@
 import { useState } from "react";
 import { Search, X } from "lucide-react";
 import Picker from "../components/Picker";
-import { cents, friendsOf, money, nameOf } from "../lib/db";
+import { friendsOf, money, nameOf, sharesOf, splitProblem } from "../lib/db";
 
-const person = (id) => ({ id, borrowedFrom: null, amount: "" });
-
-// Who paid the whole bill: the one person everyone else is covered by, "" if all paid
-// their own, "mixed" if the rows say something else.
-const payerOf = (people) => {
-  const from = new Set(people.map((p) => p.borrowedFrom));
-  if (from.size === 1 && from.has(null)) return "";
-  const x = people.find((p) => p.borrowedFrom === null && from.has(p.id))?.id;
-  return x && people.every((p) => p.id === x || p.borrowedFrom === x) ? x : "mixed";
-};
-
-const problem = (bill, people) => {
-  if (!(Number(bill) > 0)) return "Enter the total bill to continue.";
-  if (people.length < 2) return "Pick at least one friend who was there.";
-  if (people.some((p) => p.borrowedFrom !== null && p.amount !== "" && !(Number(p.amount) > 0)))
-    return "Borrowed amounts must be more than 0.";
-  return null;
-};
+const MODES = [
+  ["equal", "Equally"],
+  ["custom", "Custom amounts"],
+];
 
 export const Split = ({ db, me, setActivePage, draft, onReview }) => {
   const [bill, setBill] = useState(draft?.bill ?? "");
   const [place, setPlace] = useState(draft?.place ?? "");
-  const [people, setPeople] = useState(draft?.people ?? [person(me)]);
-  const friends = friendsOf(db, me);
-  const share = Number(bill) > 0 ? cents(Number(bill) / people.length) : 0;
-  const error = problem(bill, people);
-  const label = (id) => (id === me ? "You" : nameOf(db, id));
-  const isIn = (id) => people.some((p) => p.id === id);
+  const [people, setPeople] = useState(draft?.people ?? [{ id: me, amount: "" }]);
+  const [payer, setPayer] = useState(draft?.payer ?? me);
+  const [mode, setMode] = useState(draft?.mode ?? "equal");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+
+  const current = { bill, place: place.trim(), payer, mode, people };
+  const error = splitProblem(current);
+  const shares = sharesOf(current);
+  const hasBill = Number(bill) > 0;
+  const label = (id) => (id === me ? "You" : nameOf(db, id));
+  const isIn = (id) => people.some((p) => p.id === id);
+  const friends = friendsOf(db, me);
   const q = query.trim().toLowerCase();
-  const suggestions = friends
-    .filter((id) => !isIn(id) && nameOf(db, id).toLowerCase().includes(q))
-    .slice(0, 5);
+  const suggestions = friends.filter((id) => !isIn(id) && nameOf(db, id).toLowerCase().includes(q)).slice(0, 5);
 
-  const toggle = (id) =>
-    setPeople((ps) =>
-      isIn(id)
-        ? ps
-            .filter((p) => p.id !== id)
-            .map((p) => (p.borrowedFrom === id ? { ...p, borrowedFrom: null } : p))
-        : // someone joining a bill one person paid owes them too
-          [...ps, { ...person(id), borrowedFrom: payerOf(ps) && payerOf(ps) !== "mixed" ? payerOf(ps) : null }],
-    );
+  const add = (id) => {
+    setPeople((ps) => [...ps, { id, amount: "" }]);
+    setQuery("");
+    setOpen(false);
+  };
+  const remove = (id) => {
+    setPeople((ps) => ps.filter((p) => p.id !== id));
+    if (payer === id) setPayer(me); // the payer left the split, so it falls back to you
+  };
+  // In custom mode the old payer keeps the share they had, so switching payer never moves numbers
+  const changePayer = (id) => {
+    if (mode === "custom") setPeople((ps) => ps.map((p) => (p.id === payer ? { ...p, amount: String(shares[p.id]) } : p)));
+    setPayer(id);
+  };
+  const setAmount = (id, amount) => setPeople((ps) => ps.map((p) => (p.id === id ? { ...p, amount } : p)));
 
-  const setPayer = (x) =>
-    setPeople((ps) => ps.map((p) => ({ ...p, borrowedFrom: x && p.id !== x ? x : null, amount: "" })));
-  const payer = payerOf(people);
-
-  const update = (id, field, value) =>
-    setPeople((ps) => ps.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+  // What each row says happens to that person; the amount itself sits on the right
+  const status = (id) => {
+    if (id === payer)
+      return mode === "custom" ? (id === me ? "You paid, your share is the rest" : "Paid, their share is the rest") : id === me ? "You paid the bill" : "Paid the bill";
+    if (hasBill && !(shares[id] > 0)) return "Owes nothing";
+    if (id === me) return `You owe ${label(payer)}`;
+    return payer === me ? "Owes you" : `Owes ${label(payer)}`;
+  };
 
   return (
     <div className="rounded-[1.25rem] bg-sheet p-5 sm:p-7">
@@ -107,7 +104,7 @@ export const Split = ({ db, me, setActivePage, draft, onReview }) => {
                   <li key={p.id} className="badge">
                     {label(p.id)}
                     <button
-                      onClick={() => toggle(p.id)}
+                      onClick={() => remove(p.id)}
                       aria-label={`Remove ${label(p.id)}`}
                       className="press rounded-sm p-0.5 text-sub hover:bg-fill hover:text-ink"
                     >
@@ -141,11 +138,7 @@ export const Split = ({ db, me, setActivePage, draft, onReview }) => {
                     <button
                       // mousedown fires before the input's blur closes the list
                       onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        toggle(id);
-                        setQuery("");
-                        setOpen(false);
-                      }}
+                      onClick={() => add(id)}
                       className="menu-item"
                     >
                       {nameOf(db, id)}
@@ -160,69 +153,80 @@ export const Split = ({ db, me, setActivePage, draft, onReview }) => {
           </div>
         </>
       )}
-      <p className="mt-4 text-sm text-sub">
-        {people.length} {people.length === 1 ? "person" : "people"}
-        {share > 0 && `, ${money(share)} MVR each`}
-      </p>
 
       {people.length > 1 && (
-        <div className="mt-4 flex items-center justify-between gap-3 rounded-lg bg-fill/60 px-3 py-2.5">
-          <span className="text-sm font-medium">Who paid the bill?</span>
-          <Picker
-            label="Who paid the bill"
-            value={payer}
-            onChange={(v) => v !== "mixed" && setPayer(v)}
-            options={[
-              { value: "", label: "Each paid their own" },
-              ...people.map((p) => ({ value: p.id, label: label(p.id) })),
-              ...(payer === "mixed" ? [{ value: "mixed", label: "Mixed" }] : []),
-            ]}
-          />
-        </div>
-      )}
+        <>
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+            <h3 className="font-semibold">Paid by</h3>
+            <Picker
+              label="Who paid the bill"
+              value={payer}
+              onChange={changePayer}
+              options={people.map((p) => ({ value: p.id, label: label(p.id) }))}
+            />
+          </div>
 
-      <ul className="mt-4">
-        {people.map((p) => (
-          <li key={p.id} className="border-t border-line py-3">
-            <div className="flex items-center gap-3">
-              <p className="min-w-0 flex-1 truncate font-medium">{label(p.id)}</p>
-              {people.length > 1 && (
-                <Picker
-                  label={`Who covered ${label(p.id)}`}
-                  value={p.borrowedFrom ?? ""}
-                  onChange={(v) => update(p.id, "borrowedFrom", v || null)}
-                  options={[
-                    { value: "", label: "Paid own share" },
-                    ...people.filter((o) => o.id !== p.id).map((o) => ({ value: o.id, label: `${label(o.id)} covered` })),
-                  ]}
-                />
-              )}
-              <span className="w-16 text-right text-sm text-sub">{money(share)}</span>
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <h3 className="font-semibold">Split</h3>
+            <div role="tablist" aria-label="How to split" className="flex rounded-lg bg-fill p-0.5 text-sm">
+              {MODES.map(([m, text]) => (
+                <button
+                  key={m}
+                  role="tab"
+                  aria-selected={mode === m}
+                  onClick={() => {
+                    if (m === "custom" && mode !== "custom")
+                      setPeople((ps) => ps.map((p) => ({ ...p, amount: hasBill ? String(shares[p.id]) : "" })));
+                    setMode(m);
+                  }}
+                  className={`press rounded-md px-3 py-1.5 font-medium ${mode === m ? "bg-sheet text-ink shadow-sm" : "text-sub"}`}
+                >
+                  {text}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {p.borrowedFrom !== null && (
-              <label className="mt-2 flex items-center justify-end gap-2 text-sm text-sub">
-                Amount covered
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  min="0"
-                  step="0.01"
-                  value={p.amount}
-                  onChange={(e) => update(p.id, "amount", e.target.value)}
-                  placeholder={money(share)}
-                  className="control w-24 text-right text-ink"
-                />
-                MVR
-              </label>
-            )}
-          </li>
-        ))}
-      </ul>
+          <ul className="mt-3">
+            {people.map((p) => (
+              <li key={p.id} className="flex items-center gap-3 border-t border-line py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{label(p.id)}</p>
+                  <p className={`text-sm ${p.id === payer ? "text-lagoon" : "text-sub"}`}>{status(p.id)}</p>
+                </div>
+                {mode === "custom" && p.id !== payer ? (
+                  <label className="flex items-center gap-1.5 text-sm text-sub">
+                    <input
+                      aria-label={`${label(p.id)}'s amount`}
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      step="0.01"
+                      value={p.amount}
+                      onChange={(e) => setAmount(p.id, e.target.value)}
+                      placeholder="0.00"
+                      className="control w-24 text-right text-ink"
+                    />
+                    MVR
+                  </label>
+                ) : (
+                  <span className="text-sm text-sub">{hasBill ? `${money(shares[p.id])} MVR` : "–"}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {mode === "custom" && (
+            <p className="border-t border-line pt-3 text-sm text-sub">
+              Enter what everyone else had. {payer === me ? "You cover" : `${label(payer)} covers`} the rest.
+            </p>
+          )}
+        </>
+      )}
 
       <button
         disabled={!!error}
-        onClick={() => onReview({ bill, place: place.trim(), people, share })}
+        onClick={() => onReview(current)}
         className="press mt-6 w-full rounded-full bg-lagoon py-3 font-medium text-on-lagoon"
       >
         Review split

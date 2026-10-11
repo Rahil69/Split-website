@@ -8,6 +8,7 @@
   --color-ink: #14303a;
   --color-sub: #5b7178;
   --color-line: #d3dedd;
+  --color-input: rgb(20 48 58 / 0.16);
   --color-lagoon: #12756f;
   --color-on-lagoon: #ffffff;
   --color-coral: #c2384f;
@@ -22,6 +23,7 @@
     --color-ink: #e8f1f0;
     --color-sub: #8fa6ab;
     --color-line: #24414a;
+    --color-input: rgb(255 255 255 / 0.13);
     --color-lagoon: #3fc1b5;
     --color-on-lagoon: #04201d;
     --color-coral: #ff7a8a;
@@ -102,24 +104,27 @@
     border-color: var(--color-lagoon);
   }
 
-  /* shadcn-style controls: hairline border, soft focus ring, no fill */
+  /* shadcn-style controls: hairline border, no fill */
   .control {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     height: 2.25rem;
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--color-input);
     border-radius: 0.5rem;
     background: transparent;
     padding: 0 0.75rem;
     font-size: 0.875rem;
     outline: none;
-    transition: border-color 150ms, box-shadow 150ms;
+    transition: border-color 150ms;
+  }
+  /* focus shows as a border colour change only, no glow */
+  .control:hover {
+    border-color: color-mix(in srgb, var(--color-input), var(--color-ink) 15%);
   }
   .control:focus,
   .control:focus-within {
     border-color: var(--color-lagoon);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-lagoon) 22%, transparent);
   }
   .control:disabled {
     background: var(--color-fill);
