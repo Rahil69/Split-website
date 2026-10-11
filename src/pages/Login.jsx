@@ -17,7 +17,7 @@ const Field = ({ label, children, ...props }) => (
 // REST and DRIFT are the slow loop; FLAT is the edge tucked away at the right, which the
 // page-load flow-in grows out of, so it arrives like water instead of sliding in.
 const REST = "M1,0 L0.3,0 C0.12,0.1 0.24,0.24 0.14,0.36 C0.03,0.5 0.22,0.6 0.12,0.74 C0.04,0.86 0.16,0.94 0.2,1 L1,1 Z";
-const DRIFT = "M1,0 L0.24,0 C0.06,0.13 0.3,0.22 0.19,0.38 C0.09,0.53 0.15,0.62 0.07,0.77 C0.01,0.89 0.22,0.94 0.15,1 L1,1 Z";
+const DRIFT = "M1,0 L0.2,0 C0.02,0.14 0.34,0.2 0.22,0.4 C0.12,0.56 0.1,0.6 0.03,0.78 C0.0,0.9 0.26,0.93 0.1,1 L1,1 Z";
 const FLAT = "M1,0 L1,0 C0.97,0.1 1,0.24 0.99,0.36 C0.97,0.5 1,0.6 0.98,0.74 C0.97,0.86 1,0.94 1,1 L1,1 Z";
 const EASE = "0.45 0 0.55 1";
 const still = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -72,7 +72,7 @@ const Login = ({ db, setDb, onSignedIn }) => {
                 <>
                   <animate
                     ref={flowIn}
-                    id="flow-in"
+                    id="flowIn"
                     attributeName="d"
                     begin="indefinite"
                     dur="1.6s"
@@ -84,8 +84,8 @@ const Login = ({ db, setDb, onSignedIn }) => {
                   />
                   <animate
                     attributeName="d"
-                    dur="14s"
-                    begin="flow-in.end"
+                    dur="9s"
+                    begin="flowIn.end"
                     repeatCount="indefinite"
                     values={`${REST};${DRIFT};${REST}`}
                     calcMode="spline"
