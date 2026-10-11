@@ -54,6 +54,18 @@ export const Waves = ({ className = "", tile = false }) => {
   );
 };
 
+// Banknote rosette: rotated ellipses around a ring
+export const Rosette = ({ className = "" }) => (
+  <svg viewBox="-50 -50 100 100" className={`pointer-events-none absolute ${className}`} aria-hidden>
+    <g fill="none" stroke="currentColor" strokeWidth="0.5">
+      {Array.from({ length: 18 }, (_, i) => (
+        <ellipse key={i} rx="44" ry="14" transform={`rotate(${i * 10})`} />
+      ))}
+      <circle r="14" />
+    </g>
+  </svg>
+);
+
 const TONES = {
   owed: "bg-[#0f5f5a]",
   owe: "bg-[#9e2b3f]",
@@ -65,18 +77,7 @@ const Note = ({ tone, children }) => (
     className={`note-in relative overflow-hidden rounded-[1.75rem] p-5 text-white shadow-[0_12px_30px_-18px_rgb(20_48_58/0.45)] sm:p-6 ${TONES[tone]}`}
   >
     <Waves className="text-white/10" />
-    <svg
-      viewBox="-50 -50 100 100"
-      className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 text-white/15"
-      aria-hidden
-    >
-      <g fill="none" stroke="currentColor" strokeWidth="0.5">
-        {Array.from({ length: 18 }, (_, i) => (
-          <ellipse key={i} rx="44" ry="14" transform={`rotate(${i * 10})`} />
-        ))}
-        <circle r="14" />
-      </g>
-    </svg>
+    <Rosette className="-right-10 -top-10 h-48 w-48 text-white/15" />
     <div className="relative">{children}</div>
   </div>
 );
