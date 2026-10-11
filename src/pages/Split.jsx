@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChevronsUpDown, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
+import Picker from "../components/Picker";
 import { cents, friendsOf, money, nameOf } from "../lib/db";
 
 const person = (id) => ({ id, borrowedFrom: null, amount: "" });
@@ -129,6 +130,7 @@ export const Split = ({ db, me, setActivePage, draft, onReview }) => {
                       onClick={() => {
                         toggle(id);
                         setQuery("");
+                        setOpen(false);
                       }}
                       className="menu-item"
                     >
@@ -155,28 +157,15 @@ export const Split = ({ db, me, setActivePage, draft, onReview }) => {
             <div className="flex items-center gap-3">
               <p className="min-w-0 flex-1 truncate font-medium">{label(p.id)}</p>
               {people.length > 1 && (
-                <span className="relative">
-                <select
-                  aria-label={`Who covered ${label(p.id)}`}
+                <Picker
+                  label={`Who covered ${label(p.id)}`}
                   value={p.borrowedFrom ?? ""}
-                  onChange={(e) => update(p.id, "borrowedFrom", e.target.value || null)}
-                  className="control max-w-44 cursor-pointer appearance-none bg-sheet pr-8 text-ink"
-                >
-                  <option value="">Paid own share</option>
-                  {people.map((o) =>
-                    o.id === p.id ? null : (
-                      <option key={o.id} value={o.id}>
-                        {label(o.id)} covered
-                      </option>
-                    ),
-                  )}
-                </select>
-                <ChevronsUpDown
-                  size={14}
-                  className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-sub"
-                  aria-hidden
+                  onChange={(v) => update(p.id, "borrowedFrom", v || null)}
+                  options={[
+                    { value: "", label: "Paid own share" },
+                    ...people.filter((o) => o.id !== p.id).map((o) => ({ value: o.id, label: `${label(o.id)} covered` })),
+                  ]}
                 />
-                </span>
               )}
               <span className="w-16 text-right text-sm text-sub">{money(share)}</span>
             </div>
