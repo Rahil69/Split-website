@@ -160,9 +160,10 @@ const notify = (db, to, text, go = null, date = Date.now()) => ({
 
 export const unread = (db, me) => db.notifications.filter((n) => n.to === me && !n.read).length;
 
-export const markRead = (db, me) => ({
+// Marks one notification read, or all of mine when no id is given
+export const markRead = (db, me, id = null) => ({
   ...db,
-  notifications: db.notifications.map((n) => (n.to === me ? { ...n, read: true } : n)),
+  notifications: db.notifications.map((n) => (n.to === me && (!id || n.id === id) ? { ...n, read: true } : n)),
 });
 
 // ---- friends ----

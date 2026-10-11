@@ -8,7 +8,7 @@ import Friends from "./pages/Friends";
 import Notifications from "./pages/Notifications";
 import Account from "./pages/Account";
 import Login from "./pages/Login";
-import { load, loadSession, markRead, save, saveSession, saveSplit, unread } from "./lib/db";
+import { load, loadSession, save, saveSession, saveSplit, unread } from "./lib/db";
 
 const PAGES = ["Balances", "Split", "Friends", "Account", "Notifications"];
 const fromHash = () => PAGES.find((p) => `#${p.toLowerCase()}` === location.hash) ?? "Split";
@@ -17,7 +17,6 @@ function App() {
   const [db, setDbState] = useState(load);
   const [session, setSession] = useState(loadSession);
   const [activePage, setPage] = useState(fromHash);
-  const [fresh, setFresh] = useState([]); // notifications that were unread when the page opened
   const [draft, setDraft] = useState(null);
   const [reviewing, setReviewing] = useState(false);
 
@@ -29,10 +28,6 @@ function App() {
   // Each page gets its own #address so back/forward and refresh work
   const setActivePage = (name) => {
     if (name !== activePage) history.pushState(null, "", `#${name.toLowerCase()}`);
-    if (name === "Notifications") {
-      setFresh(db.notifications.filter((n) => n.to === me && !n.read).map((n) => n.id));
-      setDb(markRead(db, me));
-    }
     setPage(name);
     window.scrollTo(0, 0);
   };
@@ -94,7 +89,7 @@ function App() {
         {activePage === "Balances" && <Home {...props} />}
         {activePage === "Friends" && <Friends {...props} />}
         {activePage === "Account" && <Account {...props} onSignOut={() => signInAs(null)} />}
-        {activePage === "Notifications" && <Notifications {...props} fresh={fresh} />}
+        {activePage === "Notifications" && <Notifications {...props} />}
         {/* Split stays mounted so a half-filled split survives a tab switch */}
         <div hidden={activePage !== "Split"}>
           {reviewing ? (

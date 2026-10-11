@@ -4,6 +4,7 @@ import {
   balances,
   debtsFromSplit,
   friendsOf,
+  markRead,
   respond,
   saveSplit,
   changePassword,
@@ -62,6 +63,13 @@ assert.deepEqual(balances(db.debts, "raahil").people.find((p) => p.id === "ali")
 
 db = settle(db, "raahil", "ali");
 assert.equal(balances(db.debts, "raahil").people.find((p) => p.id === "ali"), undefined);
+// mark read: one, then all
+const two = seed(0);
+assert.equal(unread(two, "raahil"), 2);
+assert.equal(unread(markRead(two, "raahil", "n1"), "raahil"), 1);
+assert.equal(unread(markRead(two, "raahil"), "raahil"), 0);
+assert.equal(markRead(two, "ali").notifications.filter((n) => n.read).length, 0); // others untouched
+
 // accounts: seeded hash checks out, wrong password fails, sign up rules, password change, delete
 assert.equal(await signIn(seed(0), "raahil", "nope"), null);
 let acc = (await signUp(db, { username: "New_1", name: " Neo ", password: "secret1" })).db;
