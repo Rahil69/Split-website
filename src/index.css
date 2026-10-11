@@ -180,7 +180,21 @@
   }
 }
 
+/* Login: headline and card rise into place just after the water flows in */
+.rise {
+  animation: rise 700ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: fade 300ms ease backwards;
+  }
   .note-in {
     animation: fade 200ms ease both;
   }

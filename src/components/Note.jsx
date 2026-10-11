@@ -22,8 +22,9 @@ const tileWave = (i) => {
 const TILE_WAVES = Array.from({ length: 16 }, (_, i) => tileWave(i - 1));
 
 // Engraved wave lines on their own. Stretched to fit a card, or tiled at natural size
-// (tile) so tall surfaces don't get bloated waves.
-export const Waves = ({ className = "", tile = false }) => {
+// (tile) so tall surfaces don't get bloated waves. Tiled waves can sit on a fill colour and be
+// cut to a shape (clip = id of a <clipPath> passed as children), drawn inside this same SVG.
+export const Waves = ({ className = "", tile = false, fill, clip, children }) => {
   const lines = (
     <g fill="none" stroke="currentColor" strokeWidth="0.8">
       {(tile ? TILE_WAVES : WAVES).map((d, i) => (
@@ -41,11 +42,15 @@ export const Waves = ({ className = "", tile = false }) => {
       {tile ? (
         <>
           <defs>
-            <pattern id="waves-tile" width="400" height="210" patternUnits="userSpaceOnUse">
+            <pattern id={`waves-tile-${clip ?? "plain"}`} width="400" height="210" patternUnits="userSpaceOnUse">
               {lines}
             </pattern>
+            {children}
           </defs>
-          <rect width="100%" height="100%" fill="url(#waves-tile)" />
+          <g clipPath={clip ? `url(#${clip})` : undefined}>
+            {fill && <rect width="100%" height="100%" fill={fill} />}
+            <rect width="100%" height="100%" fill={`url(#waves-tile-${clip ?? "plain"})`} />
+          </g>
         </>
       ) : (
         lines
