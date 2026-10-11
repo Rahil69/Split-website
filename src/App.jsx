@@ -6,14 +6,16 @@ import { Split } from "./pages/Split";
 import ReviewSplit from "./pages/ReviewSplit";
 import Friends from "./pages/Friends";
 import Notifications from "./pages/Notifications";
-import { load, loadMe, markRead, save, saveMe, saveSplit, unread } from "./lib/db";
+import Account from "./pages/Account";
+import Login from "./pages/Login";
+import { load, loadSession, markRead, save, saveSession, saveSplit, unread } from "./lib/db";
 
-const PAGES = ["Balances", "Split", "Friends", "Notifications"];
+const PAGES = ["Balances", "Split", "Friends", "Account", "Notifications"];
 const fromHash = () => PAGES.find((p) => `#${p.toLowerCase()}` === location.hash) ?? "Split";
 
 function App() {
   const [db, setDbState] = useState(load);
-  const [me, setMeState] = useState(loadMe);
+  const [session, setSession] = useState(loadSession);
   const [activePage, setPage] = useState(fromHash);
   const [fresh, setFresh] = useState([]); // notifications that were unread when the page opened
   const [draft, setDraft] = useState(null);
@@ -40,11 +42,14 @@ function App() {
     return () => window.removeEventListener("popstate", sync);
   }, []);
 
-  const switchUser = (id) => {
-    setMeState(id);
-    saveMe(id);
+  // A session for a deleted or reset account counts as signed out
+  const me = db.users.some((u) => u.id === session) ? session : null;
+  const signInAs = (id) => {
+    setSession(id);
+    saveSession(id);
     setDraft(null);
     setReviewing(false);
+    if (id) setActivePage("Balances");
   };
 
   const confirmSplit = () => {
@@ -53,6 +58,8 @@ function App() {
     setReviewing(false);
     setActivePage("Balances");
   };
+
+  if (!me) return <Login db={db} setDb={setDb} onSignedIn={signInAs} />;
 
   const count = unread(db, me);
   const props = { db, setDb, me, setActivePage };
@@ -80,28 +87,13 @@ function App() {
             )}
           </button>
 
-          {/* Demo-only: act as any placeholder user to see what they see */}
-          <label className="flex items-center gap-2 text-sm text-sub">
-            <span className="hidden sm:inline">Viewing as</span>
-            <select
-              value={me}
-              onChange={(e) => switchUser(e.target.value)}
-              aria-label="Viewing as"
-              className="press rounded-full bg-fill py-2 pl-3 pr-2 font-medium text-ink outline-none"
-            >
-              {db.users.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
       </header>
 
       <main className="mx-auto max-w-md px-4 pb-32 pt-4 lg:max-w-2xl lg:pb-16 lg:pt-8">
         {activePage === "Balances" && <Home {...props} />}
         {activePage === "Friends" && <Friends {...props} />}
+        {activePage === "Account" && <Account {...props} onSignOut={() => signInAs(null)} />}
         {activePage === "Notifications" && <Notifications {...props} fresh={fresh} />}
         {/* Split stays mounted so a half-filled split survives a tab switch */}
         <div hidden={activePage !== "Split"}>
@@ -128,6 +120,7 @@ function App() {
       </main>
 
       <Nav
+        compact
         activePage={activePage}
         setActivePage={setActivePage}
         className="glass fixed bottom-6 left-1/2 z-20 flex -translate-x-1/2 shadow-[0_12px_32px_rgb(0_0_0/0.14)] lg:hidden"

@@ -6,7 +6,11 @@ import {
   friendsOf,
   respond,
   saveSplit,
+  changePassword,
+  deleteAccount,
   seed,
+  signIn,
+  signUp,
   sendRequest,
   settle,
   unread,
@@ -58,4 +62,18 @@ assert.deepEqual(balances(db.debts, "raahil").people.find((p) => p.id === "ali")
 
 db = settle(db, "raahil", "ali");
 assert.equal(balances(db.debts, "raahil").people.find((p) => p.id === "ali"), undefined);
+// accounts: seeded hash checks out, wrong password fails, sign up rules, password change, delete
+assert.equal(await signIn(seed(0), "raahil", "nope"), null);
+let acc = (await signUp(db, { username: "New_1", name: " Neo ", password: "secret1" })).db;
+assert.equal(await signIn(acc, "new_1", "secret1"), "new_1");
+assert.ok(!acc.users.find((u) => u.id === "new_1").hash.includes("secret1")); // never stored plain
+assert.match((await signUp(acc, { username: "new_1", name: "x", password: "secret1" })).error, /taken/);
+assert.match((await signUp(acc, { username: "a b", name: "x", password: "secret1" })).error, /Usernames/);
+assert.match((await signUp(acc, { username: "abc", name: "x", password: "123" })).error, /6 characters/);
+assert.match((await changePassword(acc, "new_1", "wrong", "another1")).error, /wrong/);
+acc = (await changePassword(acc, "new_1", "secret1", "another1")).db;
+assert.equal(await signIn(acc, "new_1", "another1"), "new_1");
+assert.match(deleteAccount(db, "raahil").error, /Settle up/); // still owes Yazak
+acc = deleteAccount(acc, "new_1").db;
+assert.equal(await signIn(acc, "new_1", "another1"), null);
 console.log("db ok");

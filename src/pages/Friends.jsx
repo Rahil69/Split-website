@@ -23,6 +23,8 @@ const Friends = ({ db, setDb, me }) => {
   const friends = friendsOf(db, me);
   const incoming = db.friendships.filter((f) => f.to === me && f.status === "pending").map((f) => f.from);
   const [query, setQuery] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  const PREVIEW = 5;
   const q = query.trim().toLowerCase();
   const results = q
     ? db.users.filter(
@@ -96,11 +98,22 @@ const Friends = ({ db, setDb, me }) => {
       {friends.length === 0 ? (
         <p className="mt-1 text-sub">No friends yet. Search for someone above.</p>
       ) : (
-        <ul className="mt-1">
-          {friends.map((id) => (
-            <Row key={id} name={nameOf(db, id)} />
-          ))}
-        </ul>
+        <>
+          <ul className="mt-1">
+            {(showAll ? friends : friends.slice(0, PREVIEW)).map((id) => (
+              <Row key={id} name={nameOf(db, id)} />
+            ))}
+          </ul>
+          {friends.length > PREVIEW && (
+            <button
+              onClick={() => setShowAll(!showAll)}
+              aria-expanded={showAll}
+              className="press mt-2 text-sm font-medium text-lagoon"
+            >
+              {showAll ? "Show less" : `See all ${friends.length} friends`}
+            </button>
+          )}
+        </>
       )}
 
     </div>

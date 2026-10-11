@@ -1,13 +1,14 @@
-import { Scale, Users, Utensils } from "lucide-react";
+import { CircleUser, Scale, Users, Utensils } from "lucide-react";
 
 const tabs = [
   { name: "Balances", Icon: Scale },
   { name: "Split", Icon: Utensils },
   { name: "Friends", Icon: Users },
+  { name: "Account", Icon: CircleUser },
 ];
 
 // Same tabs in two places: header bar on desktop, floating bar on phones.
-function Nav({ activePage, setActivePage, className = "" }) {
+function Nav({ activePage, setActivePage, compact = false, className = "" }) {
   return (
     <nav aria-label="Pages" className={`gap-1 rounded-full p-1 ${className}`}>
       {tabs.map(({ name, Icon }) => (
@@ -24,7 +25,8 @@ function Nav({ activePage, setActivePage, className = "" }) {
           }`}
         >
           <Icon size={18} aria-hidden />
-          {name}
+          {/* phones: only the current tab shows its label, so four tabs fit */}
+          <span className={compact && activePage !== name ? "sr-only" : ""}>{name}</span>
         </a>
       ))}
     </nav>

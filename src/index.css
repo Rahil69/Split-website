@@ -121,6 +121,10 @@
     border-color: var(--color-lagoon);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-lagoon) 22%, transparent);
   }
+  .control:disabled {
+    background: var(--color-fill);
+    color: var(--color-sub);
+  }
   .control input {
     background: transparent;
     outline: none;
