@@ -1,6 +1,6 @@
 // shortcut: the whole "server" is one localStorage blob, so every user lives in this browser.
 // Move to Supabase (users, friendships, splits, debts, notifications tables) for real multi-device use.
-const KEY = "split.db.v4";
+const KEY = "split.db.v5";
 const SESSION_KEY = "split.session";
 
 export const cents = (n) => Math.round(Number(n) * 100) / 100;
@@ -15,23 +15,23 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const DAY = 86400000;
 
 export const seed = (now = Date.now()) => ({
-  // Demo accounts: [username, name, salt, sha256(salt + password)]. Passwords were sent to the owner.
+  // Demo accounts: [username, name, salt, sha256(salt + password)]. Every demo password is "password".
   users: [
-    ["raahil", "Raahil", "4512cdfd92f530bf", "fc8f2e8895da842741d759bd2ef41117e3971e4af80b3484a28408773a10016b"],
-    ["ali", "Ali", "bfc560b939c5a129", "eed73bc3ed90f11488a1d801564f4ab2b7d3fb62c0584367eb4c40fd4a621358"],
-    ["sara", "Sara", "a05b48dec3936b1e", "86cab6fee4bfa1e520b93e93b9f09041ee3855f2591252fed1d46bda6bad6b23"],
-    ["yazak", "Yazak", "34708b1020afe514", "762fcc3d685996f936cdd4b624f8d991e5fdc3fa3855246966afa64dbacb5e1d"],
-    ["hafiz", "Hafiz", "a3833388c71bb7ed", "3619c8539414bcba8d651ea73d6d1631c4e0cb7928f5908ac3354df8f3154c5c"],
-    ["dhaisam", "Dhaisam", "082bfc875a7c2314", "2a2408b8bfbd2ea8cefc2a345ae5ec5e6bad045cc33032c841aa52ce68916038"],
-    ["zareef", "Zareef", "6413fb6df56a35ba", "6da8ed4b08860381a9656347ad69e96f2314d49d31f9d1cb1bdae844c5d43c35"],
-    ["aishath", "Aishath", "90edcdc89c9f3dea", "700e46128d21bd589f7ffc9d45a8c1467ff9460da757ff554e5170df64e88d9c"],
-    ["ibrahim", "Ibrahim", "2d065dad4b7d872e", "96a8306e86d0a5295f55f2c90e20b89a8e6646fcd521ec0fff4c2e12cb5c54d7"],
-    ["mariyam", "Mariyam", "fed55f5b1fe5cef7", "6186d14e35107d0aee8dc0299a3ff54995c5f96d5eaa6f2921925c5b0983faf7"],
-    ["hussain", "Hussain", "58b5ad3e48a5ac92", "7eec3b342f590b7f5eac0ee3a43bbfe3706c29b4564752e27b498c23fad37cf4"],
-    ["fathimath", "Fathimath", "c9380c6f64745506", "9d6c38ee49c1a1a0471d9e0eb3e72801616b7f7d9c4bcf50d605d31a5888dd16"],
-    ["ahmed", "Ahmed", "9d28bdb004fde239", "a94f53ef156d8dd919dfb92c969b2868c745f0792ac48f8cb8452c61f0145779"],
-    ["shifa", "Shifa", "db3aa676a80ac6c7", "e60aadf444ad70c0acefcea355e972a48b9291ca08bb945859f66e14421999b4"],
-    ["nashid", "Nashid", "565ab2f26fda1305", "fb5008737d3c0f13a8b19b6d192c5087c071d17e31b06edc20956b15a317b264"],
+    ["raahil", "Raahil", "0ac274858ab0a55c", "71f84fca8d6748b729fc6f295c31ca7a96bc75f263d4fa7affe36da71b66ab53"],
+    ["ali", "Ali", "b4b0ff4e77eb010e", "c69d19502b01500478dd82ce0569a4d4f54ef15bc3aa314ebaef77d51a6699bc"],
+    ["sara", "Sara", "ca5d1256f256752c", "cdf32772dfe0445b14b75057a968fb0fdded9244f01643a19df305832a12bbc9"],
+    ["yazak", "Yazak", "b45a375f1bb2d172", "4c22ce4043d1c8780f5a206fdae2e2adcfc510b310e2a367ff3a46f0ed3c4d77"],
+    ["hafiz", "Hafiz", "1911821a8ca85acc", "89f09ff38c52047a539366ecd2cbccfee1bc25c72d39f9da67ee9f3e60b9097a"],
+    ["dhaisam", "Dhaisam", "c651584654eaaa5f", "f3679e346494b3e588cfd8cce1d9942d871fba87ab2496334835bf50006db2da"],
+    ["zareef", "Zareef", "43f86c4d3f74a91e", "58777581f9ddb0afaa89063b969ae7d284454ededab79ce499dd68becf6fbdba"],
+    ["aishath", "Aishath", "220cceb72587e192", "cd506034c0ac22271c9a61cbcc27a82abd6286a245800f489262cc8777c607d1"],
+    ["ibrahim", "Ibrahim", "27fe91b3dc774901", "db55047d189613501e8fa2fdc432cd1065ac23df45e1bd40b8d8b982cdf8a367"],
+    ["mariyam", "Mariyam", "845ace7d20cc31e4", "c10207e123eca94b699dea85a350d0b4b68d3a33d242e4b4c168943c1ad94cf1"],
+    ["hussain", "Hussain", "a410e2aecbf7dbae", "b44c7d35fb9ed3f5823d956f98cd504b78cafe4af5e1f616dd42572ce3f743a7"],
+    ["fathimath", "Fathimath", "ab764b5e42a2a336", "f2ede783188741f91811c8c6beeda067d90984e5c91d77008d17989f878e5b8e"],
+    ["ahmed", "Ahmed", "5ab908b71109cb18", "57ca95d406cc840afd46b3095bac9b71b86a799240a76c0252f4f9e280570bc2"],
+    ["shifa", "Shifa", "54f1e46ec115e9d5", "8ab39de621f52cdcd9f8139ca805e1978f3a0ae6374271637789ca44e22f1f81"],
+    ["nashid", "Nashid", "03eda7a89a21c778", "17d8e74b8a13c127ff84379b396a0c035f7b73ff92d9a4835e9bb3c51db55718"],
   ].map(([id, name, salt, hash]) => ({ id, name, salt, hash, created: now - 30 * DAY })),
   friendships: [
     { from: "raahil", to: "ali", status: "accepted" },

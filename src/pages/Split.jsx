@@ -5,6 +5,15 @@ import { cents, friendsOf, money, nameOf } from "../lib/db";
 
 const person = (id) => ({ id, borrowedFrom: null, amount: "" });
 
+// Who paid the whole bill: the one person everyone else is covered by, "" if all paid
+// their own, "mixed" if the rows say something else.
+const payerOf = (people) => {
+  const from = new Set(people.map((p) => p.borrowedFrom));
+  if (from.size === 1 && from.has(null)) return "";
+  const x = people.find((p) => p.borrowedFrom === null && from.has(p.id))?.id;
+  return x && people.every((p) => p.id === x || p.borrowedFrom === x) ? x : "mixed";
+};
+
 const problem = (bill, people) => {
   if (!(Number(bill) > 0)) return "Enter the total bill to continue.";
   if (people.length < 2) return "Pick at least one friend who was there.";
@@ -35,8 +44,13 @@ export const Split = ({ db, me, setActivePage, draft, onReview }) => {
         ? ps
             .filter((p) => p.id !== id)
             .map((p) => (p.borrowedFrom === id ? { ...p, borrowedFrom: null } : p))
-        : [...ps, person(id)],
+        : // someone joining a bill one person paid owes them too
+          [...ps, { ...person(id), borrowedFrom: payerOf(ps) && payerOf(ps) !== "mixed" ? payerOf(ps) : null }],
     );
+
+  const setPayer = (x) =>
+    setPeople((ps) => ps.map((p) => ({ ...p, borrowedFrom: x && p.id !== x ? x : null, amount: "" })));
+  const payer = payerOf(people);
 
   const update = (id, field, value) =>
     setPeople((ps) => ps.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
@@ -150,6 +164,22 @@ export const Split = ({ db, me, setActivePage, draft, onReview }) => {
         {people.length} {people.length === 1 ? "person" : "people"}
         {share > 0 && `, ${money(share)} MVR each`}
       </p>
+
+      {people.length > 1 && (
+        <div className="mt-4 flex items-center justify-between gap-3 rounded-lg bg-fill/60 px-3 py-2.5">
+          <span className="text-sm font-medium">Who paid the bill?</span>
+          <Picker
+            label="Who paid the bill"
+            value={payer}
+            onChange={(v) => v !== "mixed" && setPayer(v)}
+            options={[
+              { value: "", label: "Each paid their own" },
+              ...people.map((p) => ({ value: p.id, label: label(p.id) })),
+              ...(payer === "mixed" ? [{ value: "mixed", label: "Mixed" }] : []),
+            ]}
+          />
+        </div>
+      )}
 
       <ul className="mt-4">
         {people.map((p) => (
