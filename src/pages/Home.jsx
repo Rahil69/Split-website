@@ -1,114 +1,144 @@
-import React from "react";
-import { ArrowDownLeft, ArrowUpRight, Scale } from "lucide-react";
-import DebtCards from "../components/DebtCards";
-import UserCards from "../components/UserCards";
+import { useState } from "react";
+import Note from "../components/Note";
+import { balances, money, nameOf, remind, settle } from "../lib/db";
 
-const Home = () => {
-  const youOwe = "2,620.00 MVR";
-  const owedToYou = "525.00 MVR";
-  const netOwed = "2,095";
+const day = (t) => new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+const Home = ({ db, setDb, me, setActivePage }) => {
+  const { people, owed, owe, net } = balances(db.debts, me);
+  const [status, setStatus] = useState(null);
+  const tone = net > 0 ? "owed" : net < 0 ? "owe" : "square";
+  const splits = db.splits.filter((s) => s.people.includes(me)).slice(0, 5);
+
+  const settleUp = (id) => {
+    setStatus({ text: `Settled up with ${nameOf(db, id)}`, prev: db });
+    setDb(settle(db, me, id));
+  };
+
+  const nudge = (id, amount) => {
+    setStatus({ text: `Reminder sent to ${nameOf(db, id)}` });
+    setDb(remind(db, me, id, amount));
+  };
 
   return (
-    <section className="px-4">
-      <div className="pt-1 overflow-hidden rounded-4xl border border-white/90 bg-white/75 p-5 shadow-lg shadow-emerald-900/10 backdrop-blur-xl">
-        <div className="flex items-center justify-between ">
-          <p className="rounded-full bg-neutral-100 px-3 py-1 text-[11px] tracking-wide mt-3 text-neutral-600">
-            TOTAL BALANCE
+    <div>
+      <Note tone={tone}>
+        <p className="font-medium text-white/80">
+          {tone === "owed" ? "You're owed" : tone === "owe" ? "You owe" : "All square"}
+        </p>
+        <p className="figure mt-2 text-5xl sm:text-6xl">{money(Math.abs(net))}</p>
+        <p className="mt-1 font-medium text-white/70">Rufiyaa</p>
+
+        {(owed > 0 || owe > 0) && (
+          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-white/20 pt-4 text-sm">
+            <div>
+              <dt className="text-white/70">Coming to you</dt>
+              <dd className="mt-0.5 font-medium">{money(owed)}</dd>
+            </div>
+            <div>
+              <dt className="text-white/70">You need to pay</dt>
+              <dd className="mt-0.5 font-medium">{money(owe)}</dd>
+            </div>
+          </dl>
+        )}
+      </Note>
+
+      {status && (
+        <div
+          role="status"
+          className="mt-4 flex items-center justify-between rounded-2xl bg-fill px-4 py-3 text-sm text-ink"
+        >
+          <span>{status.text}</span>
+          {status.prev && (
+            <button
+              className="press font-medium text-lagoon"
+              onClick={() => {
+                setDb(status.prev);
+                setStatus(null);
+              }}
+            >
+              Undo
+            </button>
+          )}
+        </div>
+      )}
+
+      <h2 className="mt-10 text-xl font-semibold tracking-tight">People</h2>
+
+      {people.length === 0 ? (
+        <div className="mt-3">
+          <p className="max-w-[34ch] text-sub">
+            Nobody owes anybody. When someone covers a friend's share, it shows up here.
           </p>
-
-          <div className="rounded-2xl   shadow-inner mt-3 p-3">
-            <Scale className="text-emerald-900" size={30} />
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <p className="text-sm text-neutral-700">You owe</p>
-          <div className="mt-1 flex items-end gap-2">
-            <h2 className="text-5xl font-medium leading-none tracking-tight text-neutral-900">
-              {netOwed}
-            </h2>
-            <p className="pb-1 text-sm text-neutral-500">MVR net</p>
-          </div>
-        </div>
-
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-neutral-100 px-4 py-3">
-            <div className="flex items-center gap-2 text-neutral-600">
-              <ArrowDownLeft size={15} />
-              <p className="text-xs">Owed to you</p>
-            </div>
-            <p className="mt-2 text-sm font-medium text-black">{owedToYou}</p>
-          </div>
-
-          <div className="rounded-2xl bg-neutral-100 px-4 py-3">
-            <div className="flex items-center gap-2 text-neutral-600">
-              <ArrowUpRight size={15} />
-              <p className="text-xs">You owe</p>
-            </div>
-            <p className="mt-2 text-sm font-medium text-black">{youOwe}</p>
-          </div>
-        </div>
-
-        <div className="mt-5">
-          <div className="flex h-2.5 overflow-hidden rounded-full bg-neutral-200">
-            <div className="h-full w-[17%] bg-emerald-800" />
-            <div className="h-full w-[83%] bg-neutral-200" />
-          </div>
-          <div className="mt-2 flex items-center justify-between text-[11px] text-neutral-500">
-            <p>Owed to you</p>
-            <p>You owe</p>
-          </div>
-        </div>
-      </div>
-      <div className="mt-9">
-        <div className="flex items-center justify-between px-2 text-black">
-          <h2 className="text-xl font-medium">Active Debts </h2>
-          <button className="text-sm font-medium text-neutral-700 hover:cursor-pointer">
-            View all
+          <button
+            onClick={() => setActivePage("Split")}
+            className="press mt-4 rounded-full bg-lagoon px-5 py-2.5 font-medium text-on-lagoon"
+          >
+            Split a bill
           </button>
         </div>
-      </div>
+      ) : (
+        <ul className="mt-2">
+          {people.map((p) => (
+            <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line py-4 last:border-b-0">
+              <span
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                  p.amount > 0 ? "bg-lagoon/15 text-lagoon" : "bg-coral/15 text-coral"
+                }`}
+              >
+                {nameOf(db, p.id)[0]}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{nameOf(db, p.id)}</p>
+                <p className="text-sm text-sub">{p.amount > 0 ? "Owes you" : "You owe them"}</p>
+              </div>
+              <p className={`font-semibold ${p.amount > 0 ? "text-lagoon" : "text-coral"}`}>
+                {money(Math.abs(p.amount))}
+              </p>
+              <div className="flex w-full justify-end gap-2 sm:w-auto">
+                {p.amount > 0 && (
+                  <button
+                    onClick={() => nudge(p.id, p.amount)}
+                    className="press rounded-full bg-fill px-3 py-1 text-sm font-medium"
+                  >
+                    Remind
+                  </button>
+                )}
+                <button
+                  onClick={() => settleUp(p.id)}
+                  className="press rounded-full border border-line px-3 py-1 text-sm font-medium hover:bg-fill"
+                >
+                  Settle up
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
-      <div className="mt-3 grid grid-cols-2 gap-3">
-        <DebtCards
-          title={"YOU OWE"}
-          amount={youOwe}
-          subtitle={"Across 3 people"}
-          colour={"text-black"}
-        />
-        <DebtCards
-          title={"OWED TO YOU"}
-          amount={owedToYou}
-          subtitle={"Across 2 people"}
-          colour={"text-black"}
-        />
-      </div>
-
-      <UserCards
-        title={"Yazak Hafiz"}
-        amount={"2,510.00 MVR"}
-        colour={"text-black"}
-        subtitle={"YOU OWE"}
-      />
-      <UserCards
-        title={"Hafiz Yoosuf"}
-        amount={"110.00 MVR"}
-        colour={"text-black"}
-        subtitle={"YOU OWE"}
-      />
-      <UserCards
-        title={"Dhaisam Shadda"}
-        amount={"150.00 MVR"}
-        colour={"text-black"}
-        subtitle={"OWES YOU"}
-      />
-      <UserCards
-        title={"Zareef idk"}
-        amount={"375.00 MVR"}
-        colour={"text-black"}
-        subtitle={"OWES YOU"}
-      />
-    </section>
+      {splits.length > 0 && (
+        <>
+          <h2 className="mt-10 text-xl font-semibold tracking-tight">Recent splits</h2>
+          <ul className="mt-2">
+            {splits.map((s) => (
+              <li key={s.id} className="flex items-center justify-between gap-4 border-b border-line py-3 last:border-b-0">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{s.place || "Bill"}</p>
+                  <p className="text-sm text-sub">
+                    {day(s.date)}, {s.people.length} people, added by{" "}
+                    {s.by === me ? "you" : nameOf(db, s.by)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold">{money(s.share)}</p>
+                  <p className="text-sm text-sub">your share</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
   );
 };
 

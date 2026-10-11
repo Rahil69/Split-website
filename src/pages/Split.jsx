@@ -1,291 +1,214 @@
-import React from "react";
-import {
-  Utensils,
-  ArrowRightLeft,
-  TrendingUp,
-  CircleSmall,
-  ChevronDown,
-  User,
-  StickyNoteCheck,
-} from "lucide-react";
-import { useState, useEffect } from "react";
-export const Split = ({ setActivePage, setSplitData }) => {
-  const [participants, setParticipants] = useState([]);
-  const [peopleCount, setPeopleCount] = useState(null);
-  const participantRows = Array.from({ length: peopleCount || 0 });
-  const [billAmount, setBillAmount] = useState("");
-  const [restaurantName, setRestaurantName] = useState("");
-  const [isBillFocused, setIsBillFocused] = useState(false);
-  const perPersonAmount =
-    billAmount && peopleCount ? Number(billAmount) / peopleCount : "0.00";
+import { useState } from "react";
+import { ChevronsUpDown, Search, X } from "lucide-react";
+import { cents, friendsOf, money, nameOf } from "../lib/db";
 
-  // useEffect(() => {
-  //   if (!peopleCount) return;
+const person = (id) => ({ id, borrowedFrom: null, amount: "" });
 
-  //   const defaultAmount = billAmount ? Number(billAmount) / peopleCount : 0;
-  //   const updatedParticipants = participants.map((participant) => ({
-  //     ...participant,
-  //     amount: defaultAmount.tofixed(2),
-  //   }));
-  //   setParticipants(updateParticipants);
-  // }, [billAmount, peopleCount]);
-  const formatMoney = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
-  const handlePeopleCount = (count) => {
-    setPeopleCount(count);
+const problem = (bill, people) => {
+  if (!(Number(bill) > 0)) return "Enter the total bill to continue.";
+  if (people.length < 2) return "Pick at least one friend who was there.";
+  if (people.some((p) => p.borrowedFrom !== null && p.amount !== "" && !(Number(p.amount) > 0)))
+    return "Borrowed amounts must be more than 0.";
+  return null;
+};
 
-    const defaultAmount = billAmount ? Number(billAmount) / count : 0;
+export const Split = ({ db, me, setActivePage, draft, onReview }) => {
+  const [bill, setBill] = useState(draft?.bill ?? "");
+  const [place, setPlace] = useState(draft?.place ?? "");
+  const [people, setPeople] = useState(draft?.people ?? [person(me)]);
+  const friends = friendsOf(db, me);
+  const share = Number(bill) > 0 ? cents(Number(bill) / people.length) : 0;
+  const error = problem(bill, people);
+  const label = (id) => (id === me ? "You" : nameOf(db, id));
+  const isIn = (id) => people.some((p) => p.id === id);
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const q = query.trim().toLowerCase();
+  const suggestions = friends
+    .filter((id) => !isIn(id) && nameOf(db, id).toLowerCase().includes(q))
+    .slice(0, 5);
 
-    const newParticipants = Array.from({ length: count }, (_, index) => ({
-      name: `Person ${index + 1}`,
-      borrowedOpen: false,
-      borrowedFrom: "",
-      amount: defaultAmount.toFixed(2),
-    }));
+  const toggle = (id) =>
+    setPeople((ps) =>
+      isIn(id)
+        ? ps
+            .filter((p) => p.id !== id)
+            .map((p) => (p.borrowedFrom === id ? { ...p, borrowedFrom: null } : p))
+        : [...ps, person(id)],
+    );
 
-    setParticipants(newParticipants);
-  };
-  const toggleBorrowed = (indexToToggle) => {
-    const updatedParticipants = participants.map((participant, index) => {
-      if (index === indexToToggle) {
-        return {
-          ...participant,
-          borrowedOpen: !participant.borrowedOpen,
-        };
-      }
-      return participant;
-    });
-    setParticipants(updatedParticipants);
-  };
-
-  const updateParticipant = (indexToUpdate, field, value) => {
-    const updatedParticipants = participants.map((participant, index) => {
-      if (index === indexToUpdate) {
-        return {
-          ...participant,
-          [field]: value,
-        };
-      }
-      return participant;
-    });
-    setParticipants(updatedParticipants);
-  };
+  const update = (id, field, value) =>
+    setPeople((ps) => ps.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
 
   return (
-    <section className="px-4">
-      <div className="flex flex-col items-center px-6 py-6">
-        <p className="text-xs tracking-wide text-black">TOTAL BILL</p>
+    <div className="rounded-[1.25rem] bg-sheet p-5 sm:p-7">
+      <h2 className="text-xl font-semibold tracking-tight">New split</h2>
 
-        <div className="mt-3 flex items-center justify-center">
-          <span className="text-5xl font-medium tracking-tight text-neutral-400">
-            <input
-              type="number"
-              value={billAmount}
-              onChange={(e) => setBillAmount(e.target.value)}
-              onFocus={() => setIsBillFocused(true)}
-              onBlur={() => setIsBillFocused(false)}
-              placeholder={isBillFocused ? "" : "0.00"}
-              className="text-center w-38 bg-transparent !font-medium tracking-tight text-black outline-none placeholder:text-neutral-400"
-            />
-          </span>
-        </div>
+      <label htmlFor="bill" className="mt-6 block text-sm font-medium text-sub">
+        Total bill
+      </label>
+      <div className="mt-1 flex items-baseline gap-2">
+        <input
+          id="bill"
+          type="number"
+          inputMode="decimal"
+          min="0"
+          step="0.01"
+          value={bill}
+          onChange={(e) => setBill(e.target.value)}
+          placeholder="0.00"
+          style={{ width: `${(bill.length || 4) * 0.6 + 0.1}em` }}
+          className="figure max-w-full bg-transparent text-5xl outline-none placeholder:text-line"
+        />
+        <span className="font-medium text-sub">MVR</span>
       </div>
-      <div className="mt-5 flex flex-col gap-5 rounded-3xl border border-white/80 bg-white/70 px-6 py-6 shadow-lg shadow-emerald-900/10 backdrop-blur-xl">
-        <p className="text-xs tracking-wide text-neutral-700">
-          WHERE DID YOU EAT?
+
+      <label className="mt-6 block">
+        <span className="text-sm font-medium text-sub">Where did you eat?</span>
+        <input
+          type="text"
+          value={place}
+          onChange={(e) => setPlace(e.target.value)}
+          placeholder="Seagull Cafe"
+          className="line-input mt-1 w-full py-1.5 font-medium placeholder:font-normal placeholder:text-sub/60"
+        />
+      </label>
+
+      <h3 className="mt-10 font-semibold">Who was there</h3>
+      {friends.length === 0 ? (
+        <p className="mt-1 text-sub">
+          You can only split with friends.{" "}
+          <button onClick={() => setActivePage("Friends")} className="press font-medium text-lagoon underline">
+            Add a friend
+          </button>
         </p>
-
-        <div className="flex items-center gap-4 text-xl font-thin tracking-wide">
-          <div className="rounded-full bg-emerald-100/40  p-2">
-            <Utensils size={18} className="text-emerald-900" />
+      ) : (
+        <>
+          {people.length > 1 && (
+            <ul aria-label="Friends at this meal" className="mt-3 flex flex-wrap gap-1.5">
+              {people
+                .filter((p) => p.id !== me)
+                .map((p) => (
+                  <li key={p.id} className="badge">
+                    {label(p.id)}
+                    <button
+                      onClick={() => toggle(p.id)}
+                      aria-label={`Remove ${label(p.id)}`}
+                      className="press rounded-sm p-0.5 text-sub hover:bg-fill hover:text-ink"
+                    >
+                      <X size={12} />
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          )}
+          <div className="relative mt-3">
+            <label className="control">
+              <Search size={15} className="shrink-0 text-sub" aria-hidden />
+              <span className="sr-only">Add a friend to this split</span>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setOpen(true);
+                }}
+                onFocus={() => setOpen(true)}
+                onBlur={() => setOpen(false)}
+                placeholder="Add a friend"
+                className="placeholder:text-sub"
+              />
+            </label>
+            {open && (suggestions.length > 0 || q) && (
+              <ul className="menu absolute inset-x-0 top-full z-10 mt-1">
+                {suggestions.map((id) => (
+                  <li key={id}>
+                    <button
+                      // mousedown fires before the input's blur closes the list
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        toggle(id);
+                        setQuery("");
+                      }}
+                      className="menu-item"
+                    >
+                      {nameOf(db, id)}
+                    </button>
+                  </li>
+                ))}
+                {suggestions.length === 0 && (
+                  <li className="px-2 py-1.5 text-sm text-sub">No friends match "{query.trim()}".</li>
+                )}
+              </ul>
+            )}
           </div>
-          <p className="text-neutral-700 ">
-            <input
-              type="text"
-              placeholder="Restaurant Name "
-              value={restaurantName}
-              onChange={(e) => setRestaurantName(e.target.value)}
-              className="text-4xl outline-none bg-transparent font-medium tracking-tight text-black placeholder:text-neutral-400 placeholder:text-xl"
-            />
-          </p>
-        </div>
-      </div>
-      <div className="mt-8 px-2">
-        <div className="text-sm text-neutral-700">SPLIT BETWEEN</div>
-
-        <div className="mt-3 grid grid-cols-4 gap-2">
-          <button
-            onClick={() => handlePeopleCount(peopleCount === 2 ? null : 2)}
-            className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
-              peopleCount === 2
-                ? "duration-200 ease-in border border-neutral-300/70 bg-emerald-100/70 text-black"
-                : "border border-neutral-300/70 bg-white/70 text-black/80"
-            }`}
-          >
-            <p className="text-xl font-medium">2</p>
-            <p className="mt-1 text-xs text-neutral-700">People</p>
-          </button>
-          <button
-            onClick={() => handlePeopleCount(peopleCount === 3 ? null : 3)}
-            className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
-              peopleCount === 3
-                ? "duration-200 ease-in border border-neutral-300/70 bg-emerald-100/70 text-black"
-                : "border border-neutral-300/70 bg-white/70 text-black/80"
-            }`}
-          >
-            <p className="text-xl font-medium">3</p>
-            <p className="mt-1 text-xs text-neutral-700">People</p>
-          </button>
-          <button
-            onClick={() => handlePeopleCount(peopleCount === 4 ? null : 4)}
-            className={`rounded-2xl p-4 text-center backdrop-blur hover:cursor-pointer ${
-              peopleCount === 4
-                ? "duration-200 ease-in border border-neutral-300/70 bg-emerald-100/70 text-black"
-                : "border border-neutral-300/70 bg-white/70 text-black/80"
-            }`}
-          >
-            <p className="text-xl font-medium">4</p>
-            <p className="mt-1 text-xs text-neutral-700">People</p>
-          </button>
-
-          <button className="rounded-2xl border border-neutral-300/70 bg-white/70 p-4 text-center backdrop-blur hover:cursor-pointer">
-            <p className="text-xl font-medium text-black">5+</p>
-            <p className="mt-1 text-xs text-neutral-700">Custom</p>
-          </button>
-        </div>
-      </div>
-
-      {/* participants card */}
-
-      {peopleCount && (
-        <div className="mt-6 rounded-3xl border border-white/80 bg-white/70 px-6 py-6 backdrop-blur-xl">
-          <h2 className="text-xl  text-black">Participants</h2>
-          <p className="mt-1 text-sm text-neutral-600">
-            Add who joined the bill
-          </p>
-          <div className="mt-5">
-            {participants.map((participant, index) => (
-              <div
-                key={index}
-                className="border-b border-neutral-200/70 px-1 py-4 last:border-b-0"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex gap-3">
-                    <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100/50 text-emerald-900">
-                      <User size={18} className="fill-emerald-900" />
-                    </div>
-
-                    <div>
-                      <p className="font-thin text-black">{participant.name}</p>
-                    </div>
-                  </div>
-
-                  <p className="pt-1 text-sm font-medium text-black">
-                    {formatMoney(perPersonAmount)}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => toggleBorrowed(index)}
-                  className="mt-4 flex w-full items-center justify-between rounded-2xl bg-neutral-100 px-4 py-2.5 !text-sm !font-thin text-black hover:cursor-pointer"
-                >
-                  <span>BORROWED?</span>
-                  <ChevronDown size={15} />
-                </button>
-                {participant.borrowedOpen ? (
-                  <div className="mt-2 rounded-2xl bg-neutral-50 px-3 py-3">
-                    <div className="flex items-center justify-between px-2 text-xs text-neutral-700">
-                      <p>BORROWED FROM</p>
-                      <p>AMOUNT</p>
-                    </div>
-                    <div className="mt-2 grid grid-cols-[1.35fr_0.65fr] gap-2 ">
-                      <select
-                        className="w-full rounded-xl border border-neutral-300 pl-2 py-2 text-sm text-neutral-900 "
-                        value={participant.borrowedFrom}
-                        onChange={(e) =>
-                          updateParticipant(
-                            index,
-                            "borrowedFrom",
-                            e.target.value,
-                          )
-                        }
-                      >
-                        <option value="">Select</option>
-                        {participants
-                          .filter((_, personIndex) => personIndex !== index)
-                          .map((person) => (
-                            <option key={person.name} value={person.name}>
-                              {person.name}
-                            </option>
-                          ))}
-                      </select>
-
-                      <input
-                        value={participant.amount}
-                        onChange={(e) =>
-                          updateParticipant(index, "amount", e.target.value)
-                        }
-                        className="w-full border rounded-xl border-neutral-300 px-3"
-                        placeholder="0.00"
-                        type="number"
-                      />
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </div>
+        </>
       )}
+      <p className="mt-4 text-sm text-sub">
+        {people.length} {people.length === 1 ? "person" : "people"}
+        {share > 0 && `, ${money(share)} MVR each`}
+      </p>
 
-      {/* SPLIT NOW  */}
+      <ul className="mt-4">
+        {people.map((p) => (
+          <li key={p.id} className="border-t border-line py-3">
+            <div className="flex items-center gap-3">
+              <p className="min-w-0 flex-1 truncate font-medium">{label(p.id)}</p>
+              {people.length > 1 && (
+                <span className="relative">
+                <select
+                  aria-label={`Who covered ${label(p.id)}`}
+                  value={p.borrowedFrom ?? ""}
+                  onChange={(e) => update(p.id, "borrowedFrom", e.target.value || null)}
+                  className="control max-w-44 cursor-pointer appearance-none bg-sheet pr-8 text-ink"
+                >
+                  <option value="">Paid own share</option>
+                  {people.map((o) =>
+                    o.id === p.id ? null : (
+                      <option key={o.id} value={o.id}>
+                        {label(o.id)} covered
+                      </option>
+                    ),
+                  )}
+                </select>
+                <ChevronsUpDown
+                  size={14}
+                  className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-sub"
+                  aria-hidden
+                />
+                </span>
+              )}
+              <span className="w-16 text-right text-sm text-sub">{money(share)}</span>
+            </div>
+
+            {p.borrowedFrom !== null && (
+              <label className="mt-2 flex items-center justify-end gap-2 text-sm text-sub">
+                Amount covered
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="0.01"
+                  value={p.amount}
+                  onChange={(e) => update(p.id, "amount", e.target.value)}
+                  placeholder={money(share)}
+                  className="control w-24 text-right text-ink"
+                />
+                MVR
+              </label>
+            )}
+          </li>
+        ))}
+      </ul>
 
       <button
-        onClick={() => {
-          setSplitData({
-            billAmount,
-            restaurantName,
-            peopleCount,
-            participants,
-          });
-          setActivePage("ReviewSplit");
-        }}
-        className="mt-7 flex w-full items-center justify-center rounded-2xl bg-emerald-900 py-4 !text-xl  text-white hover:cursor-pointer"
+        disabled={!!error}
+        onClick={() => onReview({ bill, place: place.trim(), people, share })}
+        className="press mt-6 w-full rounded-full bg-lagoon py-3 font-medium text-on-lagoon"
       >
-        <span className="pr-3">
-          <StickyNoteCheck size={24} className="text-white" />
-        </span>
         Review split
       </button>
-      <div className="mt-8 rounded-3xl border border-white/80 bg-white/70 px-5 py-5 backdrop-blur-xl shadow-[0_6px_14px_rgba(0,0,0,0.02)]">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs !font-thin tracking-wide text-neutral-700">
-              BALANCE OVERVIEW
-            </p>
-
-            <p className="mt-2 text-lg font-medium text-black">
-              You are owed 420 MVR
-            </p>
-          </div>
-
-          <TrendingUp size={20} className="text-emerald-900" />
-        </div>
-
-        <div className="mt-5 flex items-center justify-between text-xs ">
-          <p className="text-neutral-800">Receiving</p>
-          <p className="text-neutral-800">Owing</p>
-        </div>
-
-        <div className="mt-2 flex h-2  overflow-hidden rounded-full bg-emerald-100">
-          <div className="h-full w-[80%] bg-emerald-900" />
-          <div className="h-full w-[20%] bg-neutral-200" />
-        </div>
-      </div>
-    </section>
+      {error && <p className="mt-2 text-center text-sm text-sub">{error}</p>}
+    </div>
   );
 };
